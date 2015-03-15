@@ -158,7 +158,8 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 		statusText = "Banking";
 
-		if (Banking.openBank()) {
+		// OpenBank has issues with a banker not being in reach.
+		if (Banking.openBankBooth()) {
 
 			// Pin is handled by Tribot.
 
@@ -315,9 +316,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 		}
 
-
 		statusText = "Going to bank";
-
 
 		if (useLogCrossing) {
 			if (!Walking.walkPath(PATH_LOG_TO_BANK)) {
