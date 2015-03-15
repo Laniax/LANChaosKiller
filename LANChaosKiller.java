@@ -208,7 +208,11 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 			}
 		}
 		
-		// Drop anything except the items we want to loot or our equipment.
+		RSItem[] foodItem = Inventory.find(foodName);
+		if (foodItem.length > 0 && !protectIDs.contains(foodItem[0].getID()))
+			protectIDs.add(foodItem[0].getID());
+		
+		// Drop anything except the items we want to loot, our equipment and food.
 		Inventory.dropAllExcept(buildIntArray(protectIDs));
 	}
 
