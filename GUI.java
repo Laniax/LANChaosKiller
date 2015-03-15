@@ -157,8 +157,7 @@ public class GUI extends JFrame {
 				}
 			}
 		}
-
-		//pack();
+		
 		this.setLocationRelativeTo(null);
 		this.toFront();
 	}
@@ -194,6 +193,9 @@ public class GUI extends JFrame {
 		LANChaosKiller.foodCount = (int) foodCountSpinner.getValue();
 
 		LANChaosKiller.waitForGUI = false;
+		
+		LANChaosKiller.refreshProtectedItems();
+		
 		this.setVisible(false);
 
 		// Save these settings.

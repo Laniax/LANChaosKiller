@@ -12,6 +12,7 @@ import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Banking;
 import org.tribot.api2007.Camera;
+import org.tribot.api2007.Equipment;
 import org.tribot.api2007.GroundItems;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.Login;
@@ -21,6 +22,7 @@ import org.tribot.api2007.Skills.SKILLS;
 import org.tribot.api2007.Walking;
 import org.tribot.api2007.types.RSArea;
 import org.tribot.api2007.types.RSGroundItem;
+import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
@@ -64,6 +66,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	public static int foodCount = 0;
 
 	public static ArrayList<Integer> lootIDs = new ArrayList<Integer>();
+	public static ArrayList<Integer> protectIDs = new ArrayList<Integer>();
 
 	public static final RSTile POS_STAIRS_DOWNSTAIRS_TOWER = new RSTile(2563, 9756);
 	public static final RSArea AREA_DOWNSTAIRS_TOWER = new RSArea(new RSTile(2561, 9757), new RSTile(2592, 9730));
@@ -97,6 +100,13 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	// singleton
 	public static GUI getGUI() {
 		return gui = gui == null ? new GUI() : gui;
+	}
+	
+	public static void refreshProtectedItems() {
+		protectIDs = new ArrayList<Integer>(lootIDs);
+		for (RSItem item : Equipment.getItems()) {
+			protectIDs.add(item.getID());
+		}
 	}
 
 	@Override
@@ -189,13 +199,16 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	public static void doLooting() {
 		if (lootIDs != null && lootIDs.size() > 0) {
 
-			final int ids[] = buildIntArray(lootIDs);
+			final int[] ids = buildIntArray(lootIDs);
 			final RSGroundItem[] lootItems = GroundItems.find(ids);
 
 			if (lootItems.length > 0) {
 				Looting.lootGroundItems(lootItems, 0);
 			}
 		}
+		
+		// Drop anything except the items we want to loot or our equipment.
+		Inventory.dropAllExcept(buildIntArray(protectIDs));
 	}
 
 	/**
