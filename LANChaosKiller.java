@@ -53,7 +53,6 @@ import scripts.LanAPI.Skills;
 @ScriptManifest(authors = { "Laniax" }, category = "Combat", name = "[LAN] Chaos Killer")
 public class LANChaosKiller extends Script implements Painting, EventBlockingOverride, MouseActions, MousePainting {
 
-	public static String statusText = "Starting..";
 	public static String foodName = "Lobster";
 
 	public static boolean quitting = false;
@@ -158,7 +157,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	 */
 	public static void doBanking() {
 
-		statusText = "Banking";
+		Paint.statusText = "Banking";
 
 		// OpenBank has issues with a banker not being in reach.
 		if (Banking.openBankBooth()) {
@@ -227,7 +226,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 			doLooting();
 
-			statusText = "Finding druids";
+			Paint.statusText = "Searching for druids";
 
 			final RSNPC npcs[] = Antiban.orderOfAttack(NPCs.findNearest("Chaos druid"));
 
@@ -256,8 +255,6 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 				}
 			}
 
-			statusText = "Killing druids";
-
 			if (Combat.attackNPCs(npcs, true)) {
 
 				if (!Combat.isUnderAttack()){
@@ -280,7 +277,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 		// We are in the tower, first open the door.
 		if (AREA_INSIDE_TOWER.contains(Player.getPosition())) {
 
-			statusText = "Opening door";
+			Paint.statusText = "Opening door";
 
 			Objects.interact("Open");
 
@@ -296,7 +293,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 		// if we are left from river and should use the log crossing
 		if (useLogCrossing && Player.getPosition().getX() < COORD_X_RIVER) {
 
-			statusText = "Going to log";
+			Paint.statusText = "Going to log";
 
 			Walking.walkPath(PATH_TOWER_TO_LOG, new Condition() {
 				public boolean active() {
@@ -304,7 +301,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 					return Player.getPosition().distanceTo(PATH_TOWER_TO_LOG[PATH_TOWER_TO_LOG.length-1]) < 3;
 				}}, General.random(18000, 20000));
 
-			statusText = "Crossing log";
+			Paint.statusText = "Crossing log";
 
 			for (int i = 0; i < 10; i++) {
 
@@ -320,7 +317,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 		}
 
-		statusText = "Going to bank";
+		Paint.statusText = "Going to bank";
 
 		if (useLogCrossing) {
 			if (!Walking.walkPath(PATH_LOG_TO_BANK)) {
@@ -341,7 +338,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 		if (useLogCrossing && Player.getPosition().getX() > COORD_X_RIVER) {
 
-			statusText = "Going to log";
+			Paint.statusText = "Going to log";
 
 			Walking.walkPath(PATH_BANK_TO_LOG, new Condition() {
 				public boolean active() {
@@ -349,7 +346,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 					return Player.getPosition().distanceTo(PATH_BANK_TO_LOG[PATH_BANK_TO_LOG.length-1]) < 3;
 				}}, General.random(18000, 20000));
 
-			statusText = "Crossing log";
+			Paint.statusText = "Crossing log";
 
 			for (int i = 0; i < 10; i++) {
 
@@ -366,7 +363,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 		}
 
 
-		statusText = "Going to tower";
+		Paint.statusText = "Going to tower";
 
 		if (useLogCrossing) 
 			Walking.walkPath(PATH_LOG_TO_TOWER);
@@ -379,7 +376,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	 */
 	public static void doPicklockDoor() {
 
-		statusText = "Picklocking door";
+		Paint.statusText = "Picklocking door";
 
 		// Always rotate camera when picklocking, else it might have a hard time clicking.
 		Camera.turnToTile(POS_OUTSIDE_DRUID_TOWER_DOOR);

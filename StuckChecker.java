@@ -7,6 +7,7 @@ import org.tribot.api2007.Player;
 
 import scripts.LanAPI.Movement;
 import scripts.LanAPI.Objects;
+import scripts.LanAPI.Paint;
 
 /***
  * Asynchronously (from the script thread) checks if we are stuck.
@@ -23,7 +24,7 @@ class StuckChecker implements Runnable {
 			// Check if we might be upstairs
 			if (Player.getPosition().getPlane() > 0) {
 				
-				LANChaosKiller.statusText = "Unstucking";
+				Paint.statusText = "Unstucking";
 				General.println("We are upstairs - unstucking");
 				
 				Objects.interact("Climb-down");
@@ -38,7 +39,7 @@ class StuckChecker implements Runnable {
 			// Check if we are downstairs
 			if (LANChaosKiller.AREA_DOWNSTAIRS_TOWER.contains(Player.getPosition())) {
 				
-				LANChaosKiller.statusText = "Unstucking";
+				Paint.statusText = "Unstucking";
 				General.println("We are downstairs - unstucking");
 
 				Movement.walkTo(LANChaosKiller.POS_STAIRS_DOWNSTAIRS_TOWER);

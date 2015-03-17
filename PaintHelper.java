@@ -63,7 +63,7 @@ public class PaintHelper {
 			g.setFont(font);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			
-			Paint.drawShadowedText(LANChaosKiller.statusText, fontLarge, 141, 372, g);
+			Paint.drawShadowedText(Paint.statusText, fontLarge, 141, 372, g);
 			Paint.drawShadowedText(Timing.msToString(timeRan), font, 115, 406, g);
 			
 			int i = 0;
