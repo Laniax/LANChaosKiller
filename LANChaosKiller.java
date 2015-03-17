@@ -298,9 +298,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 			statusText = "Going to log";
 
-			Walking.walkPath(PATH_TOWER_TO_LOG);
-
-			Timing.waitCondition(new Condition() {
+			Walking.walkPath(PATH_TOWER_TO_LOG, new Condition() {
 				public boolean active() {
 					General.sleep(50);
 					return Player.getPosition().distanceTo(PATH_TOWER_TO_LOG[PATH_TOWER_TO_LOG.length-1]) < 3;
@@ -345,9 +343,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 
 			statusText = "Going to log";
 
-			Walking.walkPath(PATH_BANK_TO_LOG);
-
-			Timing.waitCondition(new Condition() {
+			Walking.walkPath(PATH_BANK_TO_LOG, new Condition() {
 				public boolean active() {
 					General.sleep(50);
 					return Player.getPosition().distanceTo(PATH_BANK_TO_LOG[PATH_BANK_TO_LOG.length-1]) < 3;
