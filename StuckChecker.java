@@ -31,7 +31,7 @@ class StuckChecker implements Runnable {
 				Timing.waitCondition(new Condition() {
 					public boolean active() {
 						General.sleep(50);
-						return Player.getPosition().distanceTo(LANChaosKiller.POS_DRUID_TOWER_CENTER) < 15;
+						return LANChaosKiller.AREA_INSIDE_TOWER.contains(Player.getPosition());
 					}}, General.random(3000, 4000));
 			}
 

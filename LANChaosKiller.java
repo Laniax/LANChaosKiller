@@ -71,7 +71,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 	public static final RSTile POS_STAIRS_DOWNSTAIRS_TOWER = new RSTile(2563, 9756);
 	public static final RSArea AREA_DOWNSTAIRS_TOWER = new RSArea(new RSTile(2561, 9757), new RSTile(2592, 9730));
 	public static final RSTile POS_OUTSIDE_DRUID_TOWER_DOOR = new RSTile(2565, 3356, 0);
-	public static final RSTile POS_DRUID_TOWER_CENTER = new RSTile(2562, 3356, 0);
+	public static final RSArea AREA_INSIDE_TOWER = new RSArea(new RSTile(2562, 3356, 0), 2);
 	public static final RSTile POS_BANK_CENTER = new RSTile(2617, 3332, 0);
 	private static final int COORD_X_RIVER = 2600;
 
@@ -146,7 +146,9 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 		new Thread(new StuckChecker()).start();
 
 		while (!quitting) {
-			State.getState().run();
+			State state = State.getState();
+			if (state != null)
+				state.run();
 			sleep(50);
 		}
 	}
@@ -276,7 +278,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 			return;
 
 		// We are in the tower, first open the door.
-		if (Player.getPosition().distanceTo(POS_DRUID_TOWER_CENTER) <= 2) {
+		if (AREA_INSIDE_TOWER.contains(Player.getPosition())) {
 
 			statusText = "Opening door";
 
@@ -286,7 +288,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 			if (!Timing.waitCondition(new Condition() {
 				public boolean active() {
 					General.sleep(50);
-					return Player.getPosition().distanceTo(POS_DRUID_TOWER_CENTER) >= 3;
+					return !AREA_INSIDE_TOWER.contains(Player.getPosition());
 				}}, General.random(2000, 3000)))
 				return;
 		}
@@ -391,7 +393,7 @@ public class LANChaosKiller extends Script implements Painting, EventBlockingOve
 			Timing.waitCondition(new Condition() {
 				public boolean active() {
 					General.sleep(50);
-					return Player.getPosition().distanceTo(POS_DRUID_TOWER_CENTER) < 3;
+					return AREA_INSIDE_TOWER.contains(Player.getPosition());
 				}}, General.random(100, 200));
 		}
 	}

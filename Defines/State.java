@@ -38,6 +38,10 @@ public enum State {
 	public static State getState() {
 		
 		Combat.checkAndEat(LANChaosKiller.foodName);
+		
+		// if we are stuck, give the stuckhandler time to fix itself.
+		if (Player.getPosition().getPlane() > 0 || LANChaosKiller.AREA_DOWNSTAIRS_TOWER.contains(Player.getPosition()))
+			return null;
 
 		if ((Inventory.isFull() || (LANChaosKiller.foodCount > 0)) && Inventory.find(LANChaosKiller.foodName).length == 0) {
 
@@ -50,7 +54,7 @@ public enum State {
 			return State.GO_TO_BANK;
 		}
 
-		if (Player.getPosition().distanceTo(LANChaosKiller.POS_DRUID_TOWER_CENTER) < 3) {
+		if (LANChaosKiller.AREA_INSIDE_TOWER.contains(Player.getPosition())) {
 			// We are at the druids (in the tower).
 			return State.KILL_DRUIDS;
 		} else if (Player.getPosition().distanceTo(LANChaosKiller.POS_OUTSIDE_DRUID_TOWER_DOOR) < 3) {
