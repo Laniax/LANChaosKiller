@@ -25,7 +25,15 @@ public enum ItemIDs {
 	LAW_RUNE(563),
 	NATURE_RUNE(561),
 	RUNE_JAVELIN(830),
-	MITHRIL_BOLTS(9142);
+	MITHRIL_BOLTS(9142),
+	
+	// Rare drop list
+	SHIELD_LEFT_HALF(2366),
+	HALF_KEY_TOOTH(985),
+	HALF_KEY_LOOP(987),
+	DRAGONSTONE(1615),
+	DRAGON_SPEAR(1249),
+	ALL_RARES(-1);
 
 	private final int id;
 	ItemIDs(int id) { this.id = id; }

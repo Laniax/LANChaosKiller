@@ -40,6 +40,7 @@ public class GUI extends JFrame {
 
 	public GUI() {
 		
+		boolean lootRareDrops = false;
 		// Load GUI settings
 		try {
 			preferences = Preferences.userRoot().node("LanChaosKiller_UserSettings");
@@ -48,8 +49,19 @@ public class GUI extends JFrame {
 			LANChaosKiller.foodName = preferences.get("foodName", "Lobster");
 			
 			for (ItemIDs i : ItemIDs.values()) {
-				if (preferences.getBoolean(i.name(), false))
-					LANChaosKiller.lootIDs.add(i.getID());
+				if (preferences.getBoolean(i.name(), false)) {
+					if (i == ItemIDs.ALL_RARES) {
+						LANChaosKiller.lootIDs.add(ItemIDs.SHIELD_LEFT_HALF.getID());
+						LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_TOOTH.getID());
+						LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_LOOP.getID());
+						LANChaosKiller.lootIDs.add(ItemIDs.DRAGONSTONE.getID());
+						LANChaosKiller.lootIDs.add(ItemIDs.DRAGON_SPEAR.getID());
+						
+						lootRareDrops = true;
+					} else {
+						LANChaosKiller.lootIDs.add(i.getID());
+					}
+				}
 			}
 		} catch (Exception e) {
 			General.println("Error while loading settings from last time. This is caused by some VPS's.");
@@ -70,6 +82,7 @@ public class GUI extends JFrame {
 		checkBoxes.put(lootNature, ItemIDs.NATURE_RUNE);
 		checkBoxes.put(lootBolts, ItemIDs.MITHRIL_BOLTS);
 		checkBoxes.put(lootJavelin, ItemIDs.RUNE_JAVELIN);
+		checkBoxes.put(lootRares, ItemIDs.ALL_RARES);
 
 		setTitle("LAN ChaosKiller - Settings");
 		setResizable(false);
@@ -100,6 +113,7 @@ public class GUI extends JFrame {
 		lootNature.setBounds(20, 260, 110, 27);
 		lootBolts.setBounds(130, 230, 110, 27);
 		lootJavelin.setBounds(130, 260, 110, 27);
+		lootRares.setBounds(250, 260, 110, 27);
 
 		mouseSpeed.setOpaque(false);
 		getContentPane().add(mouseSpeed);
@@ -158,6 +172,8 @@ public class GUI extends JFrame {
 			}
 		}
 		
+		lootRares.setSelected(lootRareDrops);
+		
 		this.setLocationRelativeTo(null);
 		this.toFront();
 	}
@@ -184,16 +200,23 @@ public class GUI extends JFrame {
 		LANChaosKiller.lootIDs.clear();
 
 		for (Entry<JCheckBox, ItemIDs> entry : checkBoxes.entrySet()) {
-			if (entry.getKey().isSelected())
-				LANChaosKiller.lootIDs.add(entry.getValue().getID());
+			if (entry.getKey().isSelected()) {
+				if (entry == lootRares) {
+					LANChaosKiller.lootIDs.add(ItemIDs.SHIELD_LEFT_HALF.getID());
+					LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_TOOTH.getID());
+					LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_LOOP.getID());
+					LANChaosKiller.lootIDs.add(ItemIDs.DRAGONSTONE.getID());
+					LANChaosKiller.lootIDs.add(ItemIDs.DRAGON_SPEAR.getID());
+				} else {
+					LANChaosKiller.lootIDs.add(entry.getValue().getID());
+				}
+			}
 		}
 
 		Mouse.setSpeed(mouseSpeed.getValue());
 		LANChaosKiller.foodName = (String) foodNameTextField.getText();
 		LANChaosKiller.foodCount = (int) foodCountSpinner.getValue();
 
-		LANChaosKiller.waitForGUI = false;
-		
 		LANChaosKiller.refreshProtectedItems();
 		
 		this.setVisible(false);
@@ -204,13 +227,28 @@ public class GUI extends JFrame {
 			preferences.putInt("mouseSpeed", mouseSpeed.getValue());
 			preferences.put("foodName", LANChaosKiller.foodName);
 			preferences.putInt("foodCount", LANChaosKiller.foodCount);
+			
+			boolean lootRares = false;
 
 			for (ItemIDs i : ItemIDs.values()) {
+				
+				if (i == ItemIDs.ALL_RARES || i == ItemIDs.SHIELD_LEFT_HALF || i == ItemIDs.HALF_KEY_TOOTH || i == ItemIDs.HALF_KEY_LOOP || i == ItemIDs.DRAGONSTONE || i == ItemIDs.DRAGON_SPEAR) {
+					
+					if (LANChaosKiller.lootIDs.contains(i.getID()))
+						lootRares = true;
+					continue;
+				}
+				
 				preferences.putBoolean(i.name(), LANChaosKiller.lootIDs.contains(i.getID()));
 			}
+			
+			preferences.putBoolean(ItemIDs.ALL_RARES.name(), lootRares);
+			
 		} catch (Exception e) {
 			General.println("Error while saving these settings for next time. This is caused by some VPS's.");
 		}
+		
+		LANChaosKiller.waitForGUI = false;
 	}
 
 	private JButton btnSave = new JButton();
@@ -230,6 +268,7 @@ public class GUI extends JFrame {
 	private JCheckBox lootNature = new JCheckBox();
 	private JCheckBox lootRanarr = new JCheckBox();
 	private JCheckBox lootTarromin = new JCheckBox();
+	private JCheckBox lootRares = new JCheckBox();
 	private JSlider mouseSpeed = new JSlider();
 	private JSpinner foodCountSpinner = new JSpinner();
 	private JTextField foodNameTextField = new JTextField();
