@@ -1,5 +1,6 @@
 package scripts.LANChaosKiller.Defines;
 
+import org.tribot.api.General;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.Player;
 
@@ -49,6 +50,10 @@ public enum State {
 				// We are at the bank and in need of some banking action.
 				return State.BANKING;
 			}
+			
+			// Food ran out, but still in combat. We will try to finish up this druid unless we get below 20-40% hp.
+			if (LANChaosKiller.foodCount > 0 && Inventory.find(LANChaosKiller.foodName).length == 0 && Player.getRSPlayer().isInCombat() &&  org.tribot.api2007.Combat.getHPRatio() > General.random(20, 40))
+				return null;
 
 			// Inventory is full, or food is gone.. we should move to bank.
 			return State.GO_TO_BANK;
