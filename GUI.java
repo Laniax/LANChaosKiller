@@ -113,7 +113,7 @@ public class GUI extends JFrame {
 		lootNature.setBounds(20, 260, 110, 27);
 		lootBolts.setBounds(130, 230, 110, 27);
 		lootJavelin.setBounds(130, 260, 110, 27);
-		lootRares.setBounds(250, 260, 110, 27);
+		lootRares.setBounds(250, 230, 110, 27);
 
 		mouseSpeed.setOpaque(false);
 		getContentPane().add(mouseSpeed);
