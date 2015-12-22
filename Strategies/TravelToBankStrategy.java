@@ -73,7 +73,8 @@ public class TravelToBankStrategy implements IStrategy {
                     public boolean active() {
                         General.sleep(50);
                         return Player.getPosition().getX() > Positions.COORD_X_RIVER;
-                    }}, General.random(2000, 3000)))
+                    }
+                }, General.random(2000, 3000)))
                     break;
             }
 
@@ -85,8 +86,7 @@ public class TravelToBankStrategy implements IStrategy {
             if (!Walking.walkPath(Positions.PATH_LOG_TO_BANK)) {
                 Movement.walkTo(Positions.POS_BANK_CENTER);
             }
-        }
-        else
+        } else
             Movement.walkTo(Positions.POS_BANK_CENTER);
     }
 

@@ -22,7 +22,7 @@ public class Positions {
     public static final RSTile POS_OBJ_LOG_TOWER = new RSTile(2599, 3336, 0);
     public static final RSTile POS_OUTSIDE_DRUID_TOWER_DOOR = new RSTile(2565, 3356, 0);
     public static final RSTile POS_STAIRS_DOWNSTAIRS_TOWER = new RSTile(2563, 9756);
-    public static final RSTile[] PATH_TOWER_TO_LOG = new RSTile[] {
+    public static final RSTile[] PATH_TOWER_TO_LOG = new RSTile[]{
             new RSTile(2566, 3356, 0), new RSTile(2573, 3355, 0),
             new RSTile(2581, 3347, 0), new RSTile(2588, 3340, 0),
             new RSTile(2595, 3339, 0), new RSTile(2597, 3336, 0)

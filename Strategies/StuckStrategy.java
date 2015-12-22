@@ -39,7 +39,8 @@ public class StuckStrategy implements IStrategy {
                 public boolean active() {
                     General.sleep(50);
                     return Player.getPosition().getPlane() == 0;
-                }}, General.random(3000, 4000));
+                }
+            }, General.random(3000, 4000));
         } else {
             // otherwise we are downstairs
             log.warn("We are downstairs - unstucking");

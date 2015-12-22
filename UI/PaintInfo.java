@@ -28,7 +28,7 @@ public class PaintInfo extends AbstractPaintInfo {
     final Point runtimePos = new Point(115, 406);
     final Point statusPos = new Point(141, 372);
 
-    private final int[][] skillXPLocations = new int[][] {
+    private final int[][] skillXPLocations = new int[][]{
             {60, 433},
             {60, 458},
             {60, 483},

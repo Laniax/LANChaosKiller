@@ -1,8 +1,10 @@
 package scripts.LANChaosKiller;
 
-import org.tribot.api2007.*;
+import org.tribot.api2007.Equipment;
+import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
-import org.tribot.api2007.types.*;
+import org.tribot.api2007.types.RSItem;
+import org.tribot.api2007.types.RSObject;
 import org.tribot.script.ScriptManifest;
 import org.tribot.script.interfaces.EventBlockingOverride;
 import org.tribot.script.interfaces.MouseActions;
@@ -25,45 +27,45 @@ import java.util.List;
 
 /**
  * [LAN] Chaos Killer
- *   Kills druids in the tower above ardougne for combat exp + herbs.
- *   Supports tribot's ABC system. (Score 10)
- *   
+ * Kills druids in the tower above ardougne for combat exp + herbs.
+ * Supports tribot's ABC system. (Score 10)
+ *
  * @author Laniax
  */
 
-@ScriptManifest(authors = { "Laniax" }, category = "Combat", name = "[LAN] Chaos Killer")
+@ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "[LAN] Chaos Killer")
 public class LANChaosKiller extends AbstractScript implements Painting, EventBlockingOverride, MouseActions, MousePainting {
 
-	@Override
-	public IStrategy[] getStrategies() {
-		return new IStrategy[] {new StuckStrategy(), new BankingStrategy(), new KillStrategy(), new PicklockDoorStrategy(), new TravelToBankStrategy(), new TravelToTowerStrategy()};
-	}
+    @Override
+    public IStrategy[] getStrategies() {
+        return new IStrategy[]{new StuckStrategy(), new BankingStrategy(), new KillStrategy(), new PicklockDoorStrategy(), new TravelToBankStrategy(), new TravelToTowerStrategy()};
+    }
 
-	@Override
-	public JFrame getGUI() {
-		return new GUI();
-	}
+    @Override
+    public JFrame getGUI() {
+        return new GUI();
+    }
 
-	/**
-	 * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
-	 */
-	@Override
-	public void onInitialize() {
+    /**
+     * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
+     */
+    @Override
+    public void onInitialize() {
 
-		SkillsHelper.setStartSkills(new SKILLS[] {SKILLS.ATTACK, SKILLS.STRENGTH, SKILLS.DEFENCE, SKILLS.HITPOINTS, SKILLS.RANGED, SKILLS.MAGIC });
+        SkillsHelper.setStartSkills(new SKILLS[]{SKILLS.ATTACK, SKILLS.STRENGTH, SKILLS.DEFENCE, SKILLS.HITPOINTS, SKILLS.RANGED, SKILLS.MAGIC});
 
-		boolean useLogCrossing = Skills.getActualLevel(SKILLS.AGILITY) >= 33;
+        boolean useLogCrossing = Skills.getActualLevel(SKILLS.AGILITY) >= 33;
 
-		if (!useLogCrossing)
-			log.info("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
+        if (!useLogCrossing)
+            log.info("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
 
-		Variables.getInstance().addOrUpdate("useLogCrossing", useLogCrossing);
+        Variables.getInstance().addOrUpdate("useLogCrossing", useLogCrossing);
 
-		// Tell the movement classes not to auto-find/open doors.
-		// The only door we encounter is scripted due to pick-lock.
-		Movement.setUseCustomDoors(true, new RSObject[] {});
+        // Tell the movement classes not to auto-find/open doors.
+        // The only door we encounter is scripted due to pick-lock.
+        Movement.setUseCustomDoors(true, new RSObject[]{});
 
-		Combat.setAutoRetaliate(true);
+        Combat.setAutoRetaliate(true);
 
         // protect our gear when dropping.
         List<Integer> protectIDs = new ArrayList<>();
@@ -72,11 +74,11 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         }
 
         Variables.getInstance().addOrUpdate("protectIds", protectIDs);
-	}
+    }
 
-	@Override
-	public AbstractPaintInfo getPaintInfo() {
-		return new PaintInfo();
-	}
+    @Override
+    public AbstractPaintInfo getPaintInfo() {
+        return new PaintInfo();
+    }
 
 }

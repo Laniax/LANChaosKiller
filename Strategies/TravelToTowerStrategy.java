@@ -40,8 +40,9 @@ public class TravelToTowerStrategy implements IStrategy {
             Walking.walkPath(Positions.PATH_BANK_TO_LOG, new Condition() {
                 public boolean active() {
                     General.sleep(50);
-                    return Player.getPosition().distanceTo(Positions.PATH_BANK_TO_LOG[Positions.PATH_BANK_TO_LOG.length-1]) < 3;
-                }}, General.random(18000, 20000));
+                    return Player.getPosition().distanceTo(Positions.PATH_BANK_TO_LOG[Positions.PATH_BANK_TO_LOG.length - 1]) < 3;
+                }
+            }, General.random(18000, 20000));
 
             PaintHelper.statusText = "Crossing log";
 
@@ -53,7 +54,8 @@ public class TravelToTowerStrategy implements IStrategy {
                     public boolean active() {
                         General.sleep(50);
                         return Player.getPosition().getX() < Positions.COORD_X_RIVER;
-                    }}, General.random(2000, 3000)))
+                    }
+                }, General.random(2000, 3000)))
                     break;
             }
         }
