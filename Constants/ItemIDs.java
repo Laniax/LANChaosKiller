@@ -1,4 +1,4 @@
-package scripts.LANChaosKiller.Defines;
+package scripts.LANChaosKiller.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +42,8 @@ public enum ItemIDs {
 	private static Map<Integer, ItemIDs> map = new HashMap<Integer, ItemIDs>();
 
 	static {
-		for (ItemIDs id : ItemIDs.values()) {
-			map.put(id.getID(), id);
+		for (ItemIDs item : ItemIDs.values()) {
+			map.put(item.getID(), item);
 		}
 	}
 

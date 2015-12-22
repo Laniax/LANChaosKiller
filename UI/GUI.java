@@ -1,17 +1,18 @@
-package scripts.LANChaosKiller;
+package scripts.LANChaosKiller.UI;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
@@ -29,43 +30,61 @@ import javax.swing.WindowConstants;
 import org.tribot.api.General;
 import org.tribot.api.input.Mouse;
 
-import scripts.LANChaosKiller.Defines.ItemIDs;
+import scripts.LANChaosKiller.Constants.ItemIDs;
+import scripts.LanAPI.Game.Persistance.Variables;
 
-@SuppressWarnings("serial")
 public class GUI extends JFrame {
 
 	private static Preferences preferences = null;
-	private HashMap<JCheckBox, ItemIDs> checkBoxes = new HashMap<JCheckBox, ItemIDs>();
+	private HashMap<JCheckBox, ItemIDs> checkBoxes = new HashMap<>();
 	Point start_drag, start_loc;
 
 	public GUI() {
 		
 		boolean lootRareDrops = false;
+		List<Integer> lootList = new ArrayList<>();
+
 		// Load GUI settings
 		try {
 			preferences = Preferences.userRoot().node("LanChaosKiller_UserSettings");
 			Mouse.setSpeed(preferences.getInt("mouseSpeed", 70));
-			LANChaosKiller.foodCount = preferences.getInt("foodCount", 1);
-			LANChaosKiller.foodName = preferences.get("foodName", "Lobster");
-			
+			Variables.getInstance().addOrUpdate("foodCount", preferences.getInt("foodCount", 1));
+			Variables.getInstance().addOrUpdate("foodName", preferences.get("foodName", "Lobster"));
+
 			for (ItemIDs i : ItemIDs.values()) {
 				if (preferences.getBoolean(i.name(), false)) {
 					if (i == ItemIDs.ALL_RARES) {
-						LANChaosKiller.lootIDs.add(ItemIDs.SHIELD_LEFT_HALF.getID());
-						LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_TOOTH.getID());
-						LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_LOOP.getID());
-						LANChaosKiller.lootIDs.add(ItemIDs.DRAGONSTONE.getID());
-						LANChaosKiller.lootIDs.add(ItemIDs.DRAGON_SPEAR.getID());
+						lootList.add(ItemIDs.SHIELD_LEFT_HALF.getID());
+						lootList.add(ItemIDs.HALF_KEY_TOOTH.getID());
+						lootList.add(ItemIDs.HALF_KEY_LOOP.getID());
+						lootList.add(ItemIDs.DRAGONSTONE.getID());
+						lootList.add(ItemIDs.DRAGON_SPEAR.getID());
 						
 						lootRareDrops = true;
 					} else {
-						LANChaosKiller.lootIDs.add(i.getID());
+						lootList.add(i.getID());
 					}
 				}
 			}
 		} catch (Exception e) {
 			General.println("Error while loading settings from last time. This is caused by some VPS's.");
 		}
+
+		JCheckBox lootGuam = new JCheckBox();
+		JCheckBox lootMarrentill = new JCheckBox();
+		JCheckBox lootTarromin = new JCheckBox();
+		JCheckBox lootHarralander = new JCheckBox();
+		JCheckBox lootRanarr = new JCheckBox();
+		JCheckBox lootIrit = new JCheckBox();
+		JCheckBox lootAventoe = new JCheckBox();
+		JCheckBox lootKwuarm = new JCheckBox();
+		JCheckBox lootCadantine = new JCheckBox();
+		JCheckBox lootDwarf = new JCheckBox();
+		JCheckBox lootLantadyme = new JCheckBox();
+		JCheckBox lootLaw = new JCheckBox();
+		JCheckBox lootNature = new JCheckBox();
+		JCheckBox lootBolts = new JCheckBox();
+		JCheckBox lootJavelin = new JCheckBox();
 
 		checkBoxes.put(lootGuam, ItemIDs.GUAM_LEAF);
 		checkBoxes.put(lootMarrentill, ItemIDs.MARRENTILL);
@@ -123,25 +142,23 @@ public class GUI extends JFrame {
 		mouseSpeed.setValue(Mouse.getSpeed());
 
 		foodCountSpinner.setOpaque(false);
-		foodCountSpinner.setModel(new SpinnerNumberModel(LANChaosKiller.foodCount, 0, 28, 1));
+		foodCountSpinner.setModel(new SpinnerNumberModel(Variables.getInstance().<Integer>get("foodCount", 0).intValue(), 0, 28, 1));
 		getContentPane().add(foodCountSpinner);
 		foodCountSpinner.setBounds(280, 302, 40, 20);
 
 		foodNameTextField.setOpaque(false);
-		foodNameTextField.setText(LANChaosKiller.foodName);
+		foodNameTextField.setText(Variables.getInstance().get("foodName", "Lobster"));
 		getContentPane().add(foodNameTextField);
 		foodNameTextField.setBounds(100, 302, 60, 20);
 
+		JButton btnSave = new JButton();
 		btnSave.setText("Save Settings");
 		btnSave.setOpaque(false);
-		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				btnSaveSettingsClicked(evt);
-			}
-		});
+		btnSave.addActionListener(evt -> btnSaveSettingsClicked(evt));
 		getContentPane().add(btnSave);
 		btnSave.setBounds(90, 415, 170, 40);
 
+		JLabel backgroundLabel = new JLabel();
 		try {
 			backgroundLabel.setIcon(new ImageIcon(new URL("https://dl.dropboxusercontent.com/u/21676524/RS/ChaosKiller/Script/scriptSettings.png")));
 		} catch (MalformedURLException e) {
@@ -150,7 +167,7 @@ public class GUI extends JFrame {
 
 		backgroundLabel.setText("Failed to load background :(");
 		backgroundLabel.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { 
+			public void mousePressed(MouseEvent evt) {
 				backgroundMousePressed(evt);
 			}
 		});
@@ -162,17 +179,18 @@ public class GUI extends JFrame {
 		getContentPane().add(backgroundLabel);
 		backgroundLabel.setBounds(0, 0, 337, 495);
 
-		Object[] lootids = LANChaosKiller.lootIDs.toArray();
-		for (int i = 0; i < lootids.length; i++) {
+		for (Integer id : lootList) {
 			for (Entry<JCheckBox, ItemIDs> entry : checkBoxes.entrySet()) {
-				if (lootids[i] != null && lootids[i].equals(entry.getValue().getID())) {
+				if (id == entry.getValue().getID()) {
 					entry.getKey().setSelected(true);
 					break;
 				}
 			}
 		}
-		
+
 		lootRares.setSelected(lootRareDrops);
+
+		Variables.getInstance().addOrUpdate("lootList", lootList);
 		
 		this.setLocationRelativeTo(null);
 		this.toFront();
@@ -197,36 +215,35 @@ public class GUI extends JFrame {
 	}
 
 	protected void btnSaveSettingsClicked(ActionEvent evt) {
-		LANChaosKiller.lootIDs.clear();
+
+		List<Integer> lootList = new ArrayList<>();
 
 		for (Entry<JCheckBox, ItemIDs> entry : checkBoxes.entrySet()) {
 			if (entry.getKey().isSelected()) {
 				if (entry == lootRares) {
-					LANChaosKiller.lootIDs.add(ItemIDs.SHIELD_LEFT_HALF.getID());
-					LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_TOOTH.getID());
-					LANChaosKiller.lootIDs.add(ItemIDs.HALF_KEY_LOOP.getID());
-					LANChaosKiller.lootIDs.add(ItemIDs.DRAGONSTONE.getID());
-					LANChaosKiller.lootIDs.add(ItemIDs.DRAGON_SPEAR.getID());
+					lootList.add(ItemIDs.SHIELD_LEFT_HALF.getID());
+					lootList.add(ItemIDs.HALF_KEY_TOOTH.getID());
+					lootList.add(ItemIDs.HALF_KEY_LOOP.getID());
+					lootList.add(ItemIDs.DRAGONSTONE.getID());
+					lootList.add(ItemIDs.DRAGON_SPEAR.getID());
 				} else {
-					LANChaosKiller.lootIDs.add(entry.getValue().getID());
+					lootList.add(entry.getValue().getID());
 				}
 			}
 		}
 
-		Mouse.setSpeed(mouseSpeed.getValue());
-		LANChaosKiller.foodName = (String) foodNameTextField.getText();
-		LANChaosKiller.foodCount = (int) foodCountSpinner.getValue();
+		Variables.getInstance().addOrUpdate("lootList", lootList);
+		Variables.getInstance().addOrUpdate("foodName", foodNameTextField.getText());
+		Variables.getInstance().addOrUpdate("foodCount", foodCountSpinner.getValue());
 
-		LANChaosKiller.refreshProtectedItems();
-		
 		this.setVisible(false);
 
 		// Save these settings.
 		try {
 			preferences = Preferences.userRoot().node("LanChaosKiller_UserSettings");
 			preferences.putInt("mouseSpeed", mouseSpeed.getValue());
-			preferences.put("foodName", LANChaosKiller.foodName);
-			preferences.putInt("foodCount", LANChaosKiller.foodCount);
+			preferences.put("foodName", foodNameTextField.getText());
+			preferences.putInt("foodCount", (int)foodCountSpinner.getValue());
 			
 			boolean lootRares = false;
 
@@ -234,12 +251,12 @@ public class GUI extends JFrame {
 				
 				if (i == ItemIDs.ALL_RARES || i == ItemIDs.SHIELD_LEFT_HALF || i == ItemIDs.HALF_KEY_TOOTH || i == ItemIDs.HALF_KEY_LOOP || i == ItemIDs.DRAGONSTONE || i == ItemIDs.DRAGON_SPEAR) {
 					
-					if (LANChaosKiller.lootIDs.contains(i.getID()))
+					if (lootList.contains(i.getID()))
 						lootRares = true;
 					continue;
 				}
 				
-				preferences.putBoolean(i.name(), LANChaosKiller.lootIDs.contains(i.getID()));
+				preferences.putBoolean(i.name(), lootList.contains(i.getID()));
 			}
 			
 			preferences.putBoolean(ItemIDs.ALL_RARES.name(), lootRares);
@@ -247,27 +264,8 @@ public class GUI extends JFrame {
 		} catch (Exception e) {
 			General.println("Error while saving these settings for next time. This is caused by some VPS's.");
 		}
-		
-		LANChaosKiller.waitForGUI = false;
 	}
 
-	private JButton btnSave = new JButton();
-	private JLabel backgroundLabel = new JLabel();
-	private JCheckBox lootAventoe = new JCheckBox();
-	private JCheckBox lootBolts = new JCheckBox();
-	private JCheckBox lootCadantine = new JCheckBox();
-	private JCheckBox lootDwarf = new JCheckBox();
-	private JCheckBox lootGuam = new JCheckBox();
-	private JCheckBox lootHarralander = new JCheckBox();
-	private JCheckBox lootIrit = new JCheckBox();
-	private JCheckBox lootJavelin = new JCheckBox();
-	private JCheckBox lootKwuarm = new JCheckBox();
-	private JCheckBox lootLantadyme = new JCheckBox();
-	private JCheckBox lootLaw = new JCheckBox();
-	private JCheckBox lootMarrentill = new JCheckBox();
-	private JCheckBox lootNature = new JCheckBox();
-	private JCheckBox lootRanarr = new JCheckBox();
-	private JCheckBox lootTarromin = new JCheckBox();
 	private JCheckBox lootRares = new JCheckBox();
 	private JSlider mouseSpeed = new JSlider();
 	private JSpinner foodCountSpinner = new JSpinner();
