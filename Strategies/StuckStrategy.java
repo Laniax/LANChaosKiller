@@ -61,6 +61,6 @@ public class StuckStrategy implements IStrategy {
 
     @Override
     public int priority() {
-        return 11;
+        return 20;
     }
 }

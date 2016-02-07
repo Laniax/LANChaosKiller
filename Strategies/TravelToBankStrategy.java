@@ -19,12 +19,12 @@ import scripts.LanAPI.Game.Persistance.Variables;
  */
 public class TravelToBankStrategy implements IStrategy {
 
-    LogProxy log = new LogProxy("TravelToBankStrategy");
+//    LogProxy log = new LogProxy("TravelToBankStrategy");
 
     @Override
     public boolean isValid() {
 
-        boolean needBankingForFood = (Inventory.isFull() || (Variables.getInstance().<Integer>get("foodCount") > 0)) && Inventory.find(Variables.getInstance().<String>get("foodName")).length == 0;
+        boolean needBankingForFood = Inventory.isFull();
 
         return needBankingForFood && Player.getPosition().distanceTo(Positions.POS_BANK_CENTER) > 2;
     }
@@ -41,7 +41,6 @@ public class TravelToBankStrategy implements IStrategy {
 
             ObjectsHelper.interact("Open");
 
-            // if it doesn't break early, we recurse call it again.
             if (!Timing.waitCondition(new Condition() {
                 public boolean active() {
                     General.sleep(50);
@@ -56,38 +55,22 @@ public class TravelToBankStrategy implements IStrategy {
 
             PaintHelper.statusText = "Going to log";
 
-            Walking.walkPath(Positions.PATH_TOWER_TO_LOG, new Condition() {
-                public boolean active() {
-                    General.sleep(50);
-                    return Player.getPosition().distanceTo(Positions.PATH_TOWER_TO_LOG[Positions.PATH_TOWER_TO_LOG.length - 1]) < 3;
-                }
-            }, General.random(18000, 20000));
-
-            PaintHelper.statusText = "Crossing log";
-
-            for (int i = 0; i < 10; i++) {
-
-                ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_TOWER);
-
+            // interact will move to the object if it isnt near
+            if (!ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_TOWER))
+                return;
+            else {
                 if (Timing.waitCondition(new Condition() {
                     public boolean active() {
-                        General.sleep(50);
+                        General.sleep(30);
                         return Player.getPosition().getX() > Positions.COORD_X_RIVER;
                     }
-                }, General.random(2000, 3000)))
-                    break;
+                }, General.random(4000, 5000)));
             }
-
         }
 
         PaintHelper.statusText = "Going to bank";
 
-        if (useLogCrossing) {
-            if (!Walking.walkPath(Positions.PATH_LOG_TO_BANK)) {
-                Movement.walkTo(Positions.POS_BANK_CENTER);
-            }
-        } else
-            Movement.walkTo(Positions.POS_BANK_CENTER);
+        Movement.walkTo(Positions.POS_BANK_CENTER);
     }
 
     @Override

@@ -18,7 +18,7 @@ import scripts.LanAPI.Game.Persistance.Variables;
  */
 public class TravelToTowerStrategy implements IStrategy {
 
-    LogProxy log = new LogProxy("TravelToTowerStrategy");
+//    LogProxy log = new LogProxy("TravelToTowerStrategy");
 
     @Override
     public boolean isValid() {
@@ -39,25 +39,22 @@ public class TravelToTowerStrategy implements IStrategy {
 
             Walking.walkPath(Positions.PATH_BANK_TO_LOG, new Condition() {
                 public boolean active() {
-                    General.sleep(50);
+                    General.sleep(30);
                     return Player.getPosition().distanceTo(Positions.PATH_BANK_TO_LOG[Positions.PATH_BANK_TO_LOG.length - 1]) < 3;
                 }
             }, General.random(18000, 20000));
 
             PaintHelper.statusText = "Crossing log";
 
-            for (int i = 0; i < 10; i++) {
+            ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_BANK);
 
-                ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_BANK);
-
-                if (Timing.waitCondition(new Condition() {
-                    public boolean active() {
-                        General.sleep(50);
-                        return Player.getPosition().getX() < Positions.COORD_X_RIVER;
-                    }
-                }, General.random(2000, 3000)))
-                    break;
-            }
+            if (!Timing.waitCondition(new Condition() {
+                public boolean active() {
+                    General.sleep(30);
+                    return Player.getPosition().getX() < Positions.COORD_X_RIVER;
+                }
+            }, General.random(4000, 5000)))
+                return;
         }
 
         PaintHelper.statusText = "Going to tower";

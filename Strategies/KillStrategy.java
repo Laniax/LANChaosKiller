@@ -1,12 +1,17 @@
 package scripts.LANChaosKiller.Strategies;
 
+import org.tribot.api.Clicking;
+import org.tribot.api.Timing;
+import org.tribot.api2007.Equipment;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
+import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.LANChaosKiller.Constants.Positions;
+import scripts.LanAPI.Core.Filters.Filters;
 import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Game.Antiban.Antiban;
 import scripts.LanAPI.Game.Combat.Combat;
@@ -14,6 +19,7 @@ import scripts.LanAPI.Game.Concurrency.IStrategy;
 import scripts.LanAPI.Game.GroundItems.GroundItems;
 import scripts.LanAPI.Game.Painting.PaintHelper;
 import scripts.LanAPI.Game.Persistance.Variables;
+import scripts.LanAPI.Network.ItemPrice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,67 +45,69 @@ public class KillStrategy implements IStrategy {
 
             PaintHelper.statusText = "Searching for druids";
 
-            final RSNPC npcs[] = Antiban.orderOfAttack(NPCs.findNearest("Chaos druid"));
+            final RSNPC npcs[] = NPCs.findNearest("Chaos druid");
 
-            if (npcs == null || npcs.length == 0) {
+            if (npcs.length == 0) {
                 // Nothing to attack, idling
                 Antiban.doIdleActions();
                 return;
             }
 
             // NPCs to attack are found.
-            Antiban.doActivateRun();
-            Antiban.waitDelay(true);
+            Antiban.activateRun();
 
-            if (Combat.attackNPCs(npcs, true)) {
+            RSNPC npc = Antiban.determineNextTarget(npcs);
 
-                if (!Combat.isUnderAttack()) {
-                    doLooting();
-                    Antiban.doIdleActions();
+            if (npc != null) {
+                Combat.attackNPC(npc);
+            }
+        } else {
+
+            if (Antiban.get().shouldLeaveGame())
+                Antiban.get().leaveGame();
+        }
+    }
+
+    public void doLooting() {
+
+        final boolean equipBolts = Variables.getInstance().get("equipBolts", false);
+        final boolean lootAbove = Variables.getInstance().get("lootAbove", false);
+        final int lootAboveAmount = Variables.getInstance().get("lootAboveAmount", 1);
+
+        List<RSGroundItem> lootList = new ArrayList<>();
+
+        for (RSGroundItem item : GroundItems.getAll(Filters.GroundItems.inArea(Positions.AREA_INSIDE_TOWER))) {
+
+            ItemIDs i = ItemIDs.valueOf(item.getID());
+
+            if (i != null && i.shouldLoot()) {
+                lootList.add(item);
+                continue;
+            }
+
+            if (lootAbove) {
+
+                int lootPrice = ItemPrice.get(item.getID());
+
+                if (lootPrice >= lootAboveAmount) {
+                    lootList.add(item);
+                    log.info("Looting item id '%d' because it is worth %dgp (threshold: %d).", item.getID(), lootPrice, lootAboveAmount);
                 }
-                Antiban.setIdle(false);
-            }
-        }
-    }
-
-    /**
-     * Converts an Arraylist full of Integers into a int[]
-     *
-     * @param integers
-     * @return
-     */
-    public static int[] buildIntArray(List<Integer> integers) {
-        int[] ints = new int[integers.size()];
-        int i = 0;
-        for (Integer n : integers) {
-            ints[i++] = n;
-        }
-        return ints;
-    }
-
-    public static void doLooting() {
-        ArrayList<Integer> lootIDs = Variables.getInstance().get("lootList", new ArrayList<>());
-        ArrayList<Integer> protectIDs = Variables.getInstance().get("protectIds", new ArrayList<>());
-
-        if (lootIDs != null && lootIDs.size() > 0) {
-
-            final int[] ids = buildIntArray(lootIDs);
-            final RSGroundItem[] lootItems = GroundItems.find(ids);
-
-            if (lootItems.length > 0) {
-                GroundItems.loot(lootItems, 0);
             }
         }
 
-        RSItem[] foodItem = Inventory.find(Variables.getInstance().<String>get("foodName"));
-        if (foodItem.length > 0 && !protectIDs.contains(foodItem[0].getID()))
-            protectIDs.add(foodItem[0].getID());
+        if (lootList.size() > 0) {
+            GroundItems.loot(lootList.toArray(new RSGroundItem[lootList.size()]), 0);
+        }
 
-        List<Integer> exceptionList = new ArrayList<>(lootIDs);
-        exceptionList.addAll(protectIDs);
+        // Equip mithril arrows after looting
+        if (equipBolts) {
 
-        // Drop anything except the items we want to loot, our equipment and food.
-        Inventory.dropAllExcept(buildIntArray(exceptionList));
+            RSItem[] bolts = Inventory.find(ItemIDs.MITHRIL_BOLTS.getID());
+
+            if (bolts.length > 0 && bolts[0] != null)
+                Clicking.click("Wield", bolts[0]);
+        }
     }
 
 

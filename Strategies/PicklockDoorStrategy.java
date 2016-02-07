@@ -7,6 +7,8 @@ import org.tribot.api2007.Camera;
 import org.tribot.api2007.Player;
 import scripts.LANChaosKiller.Constants.Positions;
 import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.LanAPI.Game.Antiban.Antiban;
+import scripts.LanAPI.Game.Combat.Combat;
 import scripts.LanAPI.Game.Concurrency.IStrategy;
 import scripts.LanAPI.Game.Helpers.ObjectsHelper;
 import scripts.LanAPI.Game.Painting.PaintHelper;
@@ -16,7 +18,7 @@ import scripts.LanAPI.Game.Painting.PaintHelper;
  */
 public class PicklockDoorStrategy implements IStrategy {
 
-    LogProxy log = new LogProxy("KillStrategy");
+    LogProxy log = new LogProxy("PicklockDoorStrategy");
 
     @Override
     public boolean isValid() {
@@ -28,9 +30,6 @@ public class PicklockDoorStrategy implements IStrategy {
     public void run() {
         PaintHelper.statusText = "Picklocking door";
 
-        // Always rotate camera when picklocking, else it might have a hard time clicking.
-        Camera.turnToTile(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
-
         if (ObjectsHelper.interact("Pick-lock")) {
 
             Timing.waitCondition(new Condition() {
@@ -39,6 +38,8 @@ public class PicklockDoorStrategy implements IStrategy {
                     return Positions.AREA_INSIDE_TOWER.contains(Player.getPosition());
                 }
             }, General.random(100, 200));
+
+            Antiban.setWaitingSince();
         }
     }
 
