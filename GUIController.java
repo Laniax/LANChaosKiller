@@ -31,111 +31,147 @@ public class GUIController extends AbstractGUIController {
     private HashMap<ItemIDs, CheckBox> items;
 
     @FXML
+    @DoNotRename
     public CheckBox equipBolts;
 
     @FXML
+    @DoNotRename
     public CheckBox worldhop;
 
     @FXML
+    @DoNotRename
     public TextField foodName;
 
     @FXML
+    @DoNotRename
     public Label threadLink;
 
     @FXML
+    @DoNotRename
     public CheckBox lootGuam;
 
     @FXML
+    @DoNotRename
     public CheckBox lootTarromin;
 
     @FXML
+    @DoNotRename
     public CheckBox lootIrit;
 
     @FXML
+    @DoNotRename
     public CheckBox lootMarrentill;
 
     @FXML
+    @DoNotRename
     public CheckBox lootHarralander;
 
     @FXML
+    @DoNotRename
     public CheckBox lootAvantoe;
 
     @FXML
+    @DoNotRename
     public CheckBox lootRanarr;
 
     @FXML
+    @DoNotRename
     public CheckBox lootKwuarm;
 
     @FXML
+    @DoNotRename
     public CheckBox lootCadantine;
 
     @FXML
+    @DoNotRename
     public CheckBox lootLantadyme;
 
     @FXML
+    @DoNotRename
     public CheckBox lootDwarfweed;
 
     @FXML
+    @DoNotRename
     public CheckBox lootLaw;
 
     @FXML
+    @DoNotRename
     public CheckBox lootNature;
 
     @FXML
+    @DoNotRename
     public CheckBox lootBolts;
 
     @FXML
+    @DoNotRename
     public CheckBox lootEnsouled;
 
     @FXML
+    @DoNotRename
     public CheckBox lootAbove;
 
     @FXML
+    @DoNotRename
     public Spinner<Integer> lootAboveAmount;
 
     @FXML
+    @DoNotRename
     public Spinner<Integer> foodCount;
 
     @FXML
+    @DoNotRename
     public GridPane notGroup;
 
     @FXML
+    @DoNotRename
     public CheckBox notChat;
 
     @FXML
+    @DoNotRename
     public CheckBox notPM;
 
     @FXML
+    @DoNotRename
     public CheckBox notBreakStart;
 
     @FXML
+    @DoNotRename
     public CheckBox notTrade;
 
     @FXML
+    @DoNotRename
     public CheckBox notServer;
 
     @FXML
+    @DoNotRename
     public CheckBox notClan;
 
     @FXML
+    @DoNotRename
     public CheckBox notSkill;
 
     @FXML
+    @DoNotRename
     public CheckBox notBreakEnd;
 
     @FXML
+    @DoNotRename
     public CheckBox notWorldhop;
 
     @FXML
+    @DoNotRename
     public CheckBox notBanking;
 
     @FXML
+    @DoNotRename
     public CheckBox enableNotifications;
 
     @FXML
+    @DoNotRename
     public Button startScript;
 
     @FXML
+    @DoNotRename
     public TextField scriptArguments;
 
     private void initMap() {
