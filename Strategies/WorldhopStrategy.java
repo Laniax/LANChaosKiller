@@ -4,10 +4,10 @@ import org.tribot.api2007.Players;
 import org.tribot.api2007.WorldHopper;
 import org.tribot.api2007.ext.Filters;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Persistance.Variables;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.persistance.Vars;
 
 /**
  * @author Laniax
@@ -19,7 +19,7 @@ public class WorldhopStrategy implements IStrategy {
     @Override
     public boolean isValid() {
 
-        boolean worldhopEnabled = Variables.getInstance().get("worldhop", false);
+        boolean worldhopEnabled = Vars.get().get("worldhop", false);
 
         if (!worldhopEnabled)
             return false;

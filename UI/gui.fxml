@@ -23,10 +23,10 @@
                     </font>
                 </Label>
                 <CheckBox fx:id="equipBolts" layoutX="404.0" layoutY="68.0" mnemonicParsing="false" text="Equip mithril bolts" />
-                <CheckBox fx:id="worldhop" layoutX="404.0" layoutY="101.0" mnemonicParsing="false" text="Worldhop if crowded (ABC2)" />
+                <CheckBox fx:id="worldhop" layoutX="404.0" layoutY="101.0" mnemonicParsing="false" text="Worldhop if crowded" />
                 <Label layoutX="48.0" layoutY="68.0" text="Food name (case sensitive):" />
                 <TextField fx:id="foodName" layoutX="201.0" layoutY="64.0" text="Lobster" />
-                <Label fx:id="threadLink" layoutX="152.0" layoutY="589.0" text="Found a bug? Have a compliment? Post in the script thread!" textFill="#2b00ff" underline="true" />
+                <Label fx:id="threadLink" layoutX="265.0" layoutY="589.0" text="Found a bug? Have a compliment? Post in the script thread!" textFill="#2b00ff" underline="true" />
                 <Label layoutX="48.0" layoutY="101.0" text="Food count:" />
                 <Label alignment="CENTER" layoutX="36.0" layoutY="133.0" style="&#10;" text="Loot" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
                     <font>
@@ -130,6 +130,7 @@
                     </font>
                 </Button>
                 <TextField fx:id="scriptArguments" editable="false" layoutX="35.0" layoutY="557.0" prefHeight="25.0" prefWidth="387.0" promptText="Script arguments" />
+            <Label layoutX="35.0" layoutY="589.0" text="Mouse over an item to see its value!" />
             </children>
         </AnchorPane>
     </children>

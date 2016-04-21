@@ -5,14 +5,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import scripts.LANChaosKiller.Constants.ItemIDs;
-import scripts.LanAPI.Core.GUI.AbstractGUIController;
-import scripts.LanAPI.Core.GUI.GUI;
-import scripts.LanAPI.Core.System.NotificationPreferences;
-import scripts.LanAPI.Core.System.Notifications;
-import scripts.LanAPI.Game.Combat.Combat;
-import scripts.LanAPI.Game.Persistance.Variables;
-import scripts.LanAPI.Network.Internet;
-import scripts.LanAPI.Network.ItemPrice;
+import scripts.lanapi.core.gui.AbstractGUIController;
+import scripts.lanapi.core.gui.GUI;
+import scripts.lanapi.core.system.NotificationPreferences;
+import scripts.lanapi.core.system.Notifications;
+import scripts.lanapi.game.combat.Combat;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.network.Internet;
+import scripts.lanapi.network.ItemPrice;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -317,13 +317,13 @@ public class GUIController extends AbstractGUIController {
 
         Combat.setFoodName(getFoodName());
 
-        Variables.getInstance().addOrUpdate("foodCount", getFoodCount());
-        Variables.getInstance().addOrUpdate("equipBolts", getEquipBolts());
-        Variables.getInstance().addOrUpdate("worldhop", getShouldWorldhop());
-        Variables.getInstance().addOrUpdate("lootAbove", getShouldLootAbove());
-        Variables.getInstance().addOrUpdate("lootAboveAmount", getShouldLootAboveAmount());
+        Vars.get().addOrUpdate("foodCount", getFoodCount());
+        Vars.get().addOrUpdate("equipBolts", getEquipBolts());
+        Vars.get().addOrUpdate("worldhop", getShouldWorldhop());
+        Vars.get().addOrUpdate("lootAbove", getShouldLootAbove());
+        Vars.get().addOrUpdate("lootAboveAmount", getShouldLootAboveAmount());
 
-        Variables.getInstance().addOrUpdate("enableNotifications", getEnableNotifications());
+        Vars.get().addOrUpdate("enableNotifications", getEnableNotifications());
 
         NotificationPreferences prefs = Notifications.getPreferences();
         prefs.setOnChatMessage(notChat.isSelected());
@@ -335,8 +335,8 @@ public class GUIController extends AbstractGUIController {
         prefs.setOnClanMessage(notClan.isSelected());
         prefs.setOnSkillLevelUp(notSkill.isSelected());
 
-        Variables.getInstance().addOrUpdate("worldhopNotification", notWorldhop.isSelected());
-        Variables.getInstance().addOrUpdate("bankingNotification", notBanking.isSelected());
+        Vars.get().addOrUpdate("worldhopNotification", notWorldhop.isSelected());
+        Vars.get().addOrUpdate("bankingNotification", notBanking.isSelected());
 
         for (Map.Entry<ItemIDs, CheckBox> set : items.entrySet()) {
             set.getKey().shouldLoot(set.getValue().isSelected());

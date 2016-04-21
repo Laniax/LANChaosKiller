@@ -5,11 +5,11 @@ import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Player;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Helpers.ObjectsHelper;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.helpers.ObjectsHelper;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
 
 /**
  * @author Laniax

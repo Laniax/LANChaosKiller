@@ -2,29 +2,32 @@ package scripts.LANChaosKiller;
 
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
+import org.tribot.api2007.types.RSObject;
 import org.tribot.script.ScriptManifest;
 import org.tribot.script.interfaces.*;
 import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.LANChaosKiller.Constants.Positions;
 import scripts.LANChaosKiller.Strategies.*;
 import scripts.LANChaosKiller.UI.PaintInfo;
-import scripts.LanAPI.Core.GUI.GUI;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Core.Mathematics.FastMath;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Combat.Combat;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Helpers.ArgumentsHelper;
-import scripts.LanAPI.Game.Helpers.SkillsHelper;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Persistance.Variables;
-import scripts.LanAPI.Game.Script.AbstractScript;
-import scripts.LanAPI.Network.Connectivity.Signature;
-import scripts.LanAPI.Network.ItemPrice;
+import scripts.lanapi.core.gui.GUI;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.core.mathematics.FastMath;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.combat.Combat;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.helpers.ArgumentsHelper;
+import scripts.lanapi.game.helpers.SkillsHelper;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.AbstractPaintInfo;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.game.script.AbstractScript;
+import scripts.lanapi.network.connectivity.Signature;
+import scripts.lanapi.network.ItemPrice;
 
 import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +39,8 @@ import java.util.List;
  * @author Laniax
  */
 
-@ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "[LAN] Chaos Killer")
-public class LANChaosKiller extends AbstractScript implements Painting, EventBlockingOverride, MouseActions, MousePainting, Ending, Breaking, Arguments, MessageListening07 {
+@ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "[LAN] Chaos Killer", description = "Local script")
+public class LANChaosKiller extends AbstractScript implements Painting, EventBlockingOverride, MouseActions, MousePainting, MouseSplinePainting, Ending, Breaking, Arguments, MessageListening07 {
 
     @Override
     public IStrategy[] getStrategies() {
@@ -46,7 +49,12 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
     @Override
     public GUI getGUI() {
-        return new GUI(getClass().getResource("UI/gui.fxml"));
+        try {
+            return new GUI(new URL("http://laniax.eu/paint/chaoskiller/gui.fxml"));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -67,10 +75,11 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         if (!useLogCrossing)
             log.info("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
 
-        Variables.getInstance().addOrUpdate("useLogCrossing", useLogCrossing);
+        Vars.get().addOrUpdate("useLogCrossing", useLogCrossing);
 
         Combat.setAutoRetaliate(true);
 
+        Movement.setUseCustomDoors(new RSObject[]{});
         Movement.setExcludeTiles(Positions.AREA_INSIDE_TOWER.getAllTiles());
 
         log.info("Retrieving loot prices..");
@@ -134,60 +143,60 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
                 case "foodcount":
                     if (useDefault) {
-                        Variables.getInstance().addOrUpdate("foodCount", 1);
+                        Vars.get().addOrUpdate("foodCount", 1);
                         continue;
                     }
 
                     if (isInt(value)) {
                         int val = FastMath.minMax(Integer.valueOf(value), 0, 27);
-                        Variables.getInstance().addOrUpdate("foodCount", val);
+                        Vars.get().addOrUpdate("foodCount", val);
                         continue;
                     }
 
                     break;
                 case "equipbolts":
                     if (useDefault) {
-                        Variables.getInstance().addOrUpdate("equipBolts", true);
+                        Vars.get().addOrUpdate("equipBolts", true);
                         continue;
                     }
                     if (isBoolean(value)) {
                         boolean val = value.toLowerCase().equals("true");
-                        Variables.getInstance().addOrUpdate("equipBolts", val);
+                        Vars.get().addOrUpdate("equipBolts", val);
                         continue;
                     }
                     break;
                 case "worldhop":
                     if (useDefault) {
-                        Variables.getInstance().addOrUpdate("worldhop", true);
+                        Vars.get().addOrUpdate("worldhop", true);
                         continue;
                     }
                     if (isBoolean(value)) {
                         boolean val = value.toLowerCase().equals("true");
-                        Variables.getInstance().addOrUpdate("worldhop", val);
+                        Vars.get().addOrUpdate("worldhop", val);
                         continue;
                     }
                     break;
                 case "lootabove":
                     if (useDefault) {
-                        Variables.getInstance().addOrUpdate("lootAbove", true);
-                        Variables.getInstance().addOrUpdate("lootAboveAmount", 5000);
+                        Vars.get().addOrUpdate("lootAbove", true);
+                        Vars.get().addOrUpdate("lootAboveAmount", 5000);
                         continue;
                     }
                     if (isInt(value)) {
                         int val = Math.max(Integer.valueOf(value), 1);
-                        Variables.getInstance().addOrUpdate("lootAbove", true);
-                        Variables.getInstance().addOrUpdate("lootAboveAmount", val);
+                        Vars.get().addOrUpdate("lootAbove", true);
+                        Vars.get().addOrUpdate("lootAboveAmount", val);
                         continue;
                     }
                     break;
                 case "notifications":
                     if (useDefault) {
-                        Variables.getInstance().addOrUpdate("enableNotifications", false);
+                        Vars.get().addOrUpdate("enableNotifications", false);
                         continue;
                     }
                     if (isBoolean(value)) {
                         boolean val = value.toLowerCase().equals("true");
-                        Variables.getInstance().addOrUpdate("enableNotifications", val);
+                        Vars.get().addOrUpdate("enableNotifications", val);
                         continue;
                     }
                     break;

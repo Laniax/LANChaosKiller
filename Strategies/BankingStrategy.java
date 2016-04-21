@@ -6,16 +6,13 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Banking;
 import org.tribot.api2007.Player;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Core.System.Notifications;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Combat.Combat;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Inventory.Inventory;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Persistance.Variables;
-
-import java.awt.*;
+import scripts.lanapi.core.system.Notifications;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.combat.Combat;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.inventory.Inventory;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
 
 /**
  * @author Laniax
@@ -27,9 +24,12 @@ public class BankingStrategy implements IStrategy {
     @Override
     public boolean isValid() {
 
-        boolean needBanking = Inventory.isFull();
+        final int foodCount = Vars.get().get("foodCount");
+        final String foodName = Combat.getFoodName();
 
-        return needBanking && Player.getPosition().distanceTo(Positions.POS_BANK_CENTER) < 3;
+        boolean needBankingForFood = Inventory.isFull() || (foodCount > 0 && Inventory.getCount(foodName) == 0);
+
+        return needBankingForFood && Player.getPosition().distanceTo(Positions.POS_BANK_CENTER) < 3;
     }
 
     @Override
@@ -37,10 +37,10 @@ public class BankingStrategy implements IStrategy {
 
         PaintHelper.statusText = "Banking";
 
-        final int foodCount = Variables.getInstance().get("foodCount");
+        final int foodCount = Vars.get().get("foodCount");
         final String foodName = Combat.getFoodName();
 
-        final boolean bankingNotification = Variables.getInstance().get("bankingNotification", false);
+        final boolean bankingNotification = Vars.get().get("bankingNotification", false);
 
         if (bankingNotification)
             Notifications.send("[LAN] ChaosKiller", "Banking..");
