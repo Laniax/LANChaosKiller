@@ -97,22 +97,6 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         return new PaintInfo();
     }
 
-    @Override
-    public void onEnd() {
-        super.onEnd();
-
-        HashMap<String, Integer> vars = new HashMap<>();
-        vars.put("attackXP", SkillsHelper.getReceivedXP(SKILLS.ATTACK));
-        vars.put("strengthXP", SkillsHelper.getReceivedXP(SKILLS.STRENGTH));
-        vars.put("defenceXP", SkillsHelper.getReceivedXP(SKILLS.DEFENCE));
-        vars.put("hitpointsXP", SkillsHelper.getReceivedXP(SKILLS.HITPOINTS));
-        vars.put("rangedXP", SkillsHelper.getReceivedXP(SKILLS.RANGED));
-        vars.put("magicXP", SkillsHelper.getReceivedXP(SKILLS.MAGIC));
-        vars.put("druidsKilled", Antiban.getResourcesWon());
-        vars.put("profit", PaintHelper.profit);
-        if (Signature.send("http://laniax.eu/scripts/Chaos%20Killer/signature/update", this.getRunningTime(), vars))
-            log.debug("Succesfully posted signature data.");
-    }
 
     @Override
     public void passArguments(HashMap<String, String> hashMap) {
@@ -237,5 +221,39 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
     private boolean isInt(String str) {
         return str.matches("^-?\\d+$");
+    }
+
+
+    /**
+     * The url of the server. In the following format:
+     * http://yourdomain.com/scripts/yourscriptname/
+     *
+     * @return
+     */
+    @Override
+    public String signatureServerUrl() {
+        return "http://laniax.eu/scripts/Chaos%20Killer/";
+    }
+
+    /**
+     * Called every 5 minutes to send data to the server. Please send the values -from the script start- and NOT from since the last call.
+     *
+     * @return A hashmap with String that equals the a Type name on the server, and the integer value of the variable.
+     */
+    @Override
+    public HashMap<String, Integer> signatureSendData() {
+
+        HashMap<String, Integer> result = new HashMap<>();
+
+        result.put("attackXP", SkillsHelper.getReceivedXP(SKILLS.ATTACK));
+        result.put("strengthXP", SkillsHelper.getReceivedXP(SKILLS.STRENGTH));
+        result.put("defenceXP", SkillsHelper.getReceivedXP(SKILLS.DEFENCE));
+        result.put("hitpointsXP", SkillsHelper.getReceivedXP(SKILLS.HITPOINTS));
+        result.put("rangedXP", SkillsHelper.getReceivedXP(SKILLS.RANGED));
+        result.put("magicXP", SkillsHelper.getReceivedXP(SKILLS.MAGIC));
+        result.put("druidsKilled", Antiban.getResourcesWon());
+        result.put("profit", PaintHelper.profit);
+
+        return result;
     }
 }
