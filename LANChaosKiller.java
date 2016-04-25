@@ -107,6 +107,7 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
             hasArguments = false;
             return;
         }
+
         if (log == null)
             log = new LogProxy("Arguments"); // passArguments is called before script#run.
 
