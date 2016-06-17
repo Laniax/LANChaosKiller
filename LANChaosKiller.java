@@ -1,7 +1,9 @@
 package scripts.LANChaosKiller;
 
+import org.tribot.api2007.Banking;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
+import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.script.ScriptManifest;
 import org.tribot.script.interfaces.*;
@@ -15,7 +17,10 @@ import scripts.lanapi.core.mathematics.FastMath;
 import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.combat.Combat;
 import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.concurrency.Condition;
+import scripts.lanapi.game.concurrency.observers.inventory.InventoryObserver;
 import scripts.lanapi.game.helpers.ArgumentsHelper;
+import scripts.lanapi.game.helpers.ItemsHelper;
 import scripts.lanapi.game.helpers.SkillsHelper;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.AbstractPaintInfo;
@@ -24,6 +29,7 @@ import scripts.lanapi.game.persistance.Vars;
 import scripts.lanapi.game.script.AbstractScript;
 import scripts.lanapi.network.connectivity.Signature;
 import scripts.lanapi.network.ItemPrice;
+import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
 import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
@@ -41,6 +47,8 @@ import java.util.List;
 
 @ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "[LAN] Chaos Killer", description = "Local script")
 public class LANChaosKiller extends AbstractScript implements Painting, EventBlockingOverride, MouseActions, MousePainting, MouseSplinePainting, Ending, Breaking, Arguments, MessageListening07 {
+
+    private LogProxy inventoryLog;
 
     @Override
     public IStrategy[] getStrategies() {
@@ -75,6 +83,7 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         if (!useLogCrossing)
             log.info("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
 
+        Vars.get().addOrUpdate("script", this);
         Vars.get().addOrUpdate("useLogCrossing", useLogCrossing);
 
         Combat.setAutoRetaliate(true);
@@ -84,12 +93,25 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
         log.info("Retrieving loot prices..");
         for (ItemIDs item : ItemIDs.values()) {
-
-            int price = ItemPrice.get(item.getID()); // this is cached
-            if (price == 0)
-                log.error("Error getting price for %s", item.name());
+            try {
+                ItemPrice.get(item.getID()); // this is cached
+            } catch (ItemPriceNotFoundException e) {
+                log.error("Error getting price for %s.", item.name());
+            }
         }
         log.info("Got all prices!");
+
+        inventoryLog = new LogProxy("Inventory");
+
+        InventoryObserver observer = new InventoryObserver(new Condition() {
+            @Override
+            public boolean active() {
+                return !Banking.isBankScreenOpen();
+            }
+        });
+
+        observer.addListener(this);
+        observer.start();
     }
 
     @Override
@@ -97,6 +119,40 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         return new PaintInfo();
     }
 
+    @Override
+    public void inventoryItemAdded(RSItem item, int count) {
+
+        int itemPrice;
+        try {
+            itemPrice = ItemPrice.get(item.getID());
+        } catch (ItemPriceNotFoundException e) {
+            inventoryLog.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
+            return;
+        }
+
+        int totalWorth = itemPrice * count;
+
+        inventoryLog.info("Gained item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
+        PaintHelper.profit += totalWorth;
+    }
+
+    @Override
+    public void inventoryItemRemoved(RSItem item, int count) {
+
+        int itemPrice;
+
+        try {
+            itemPrice = ItemPrice.get(item.getID());
+        } catch (ItemPriceNotFoundException e) {
+            inventoryLog.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
+            return;
+        }
+
+        int totalWorth = itemPrice * count;
+
+        inventoryLog.info("Lost item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
+        PaintHelper.profit -= totalWorth;
+    }
 
     @Override
     public void passArguments(HashMap<String, String> hashMap) {
@@ -246,12 +302,12 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
         HashMap<String, Integer> result = new HashMap<>();
 
-        result.put("attackXP", SkillsHelper.getReceivedXP(SKILLS.ATTACK));
-        result.put("strengthXP", SkillsHelper.getReceivedXP(SKILLS.STRENGTH));
-        result.put("defenceXP", SkillsHelper.getReceivedXP(SKILLS.DEFENCE));
-        result.put("hitpointsXP", SkillsHelper.getReceivedXP(SKILLS.HITPOINTS));
-        result.put("rangedXP", SkillsHelper.getReceivedXP(SKILLS.RANGED));
-        result.put("magicXP", SkillsHelper.getReceivedXP(SKILLS.MAGIC));
+        result.put("attackXP", SkillsHelper.getReceivedXP(SKILLS.ATTACK, getRunningTime()));
+        result.put("strengthXP", SkillsHelper.getReceivedXP(SKILLS.STRENGTH, getRunningTime()));
+        result.put("defenceXP", SkillsHelper.getReceivedXP(SKILLS.DEFENCE, getRunningTime()));
+        result.put("hitpointsXP", SkillsHelper.getReceivedXP(SKILLS.HITPOINTS, getRunningTime()));
+        result.put("rangedXP", SkillsHelper.getReceivedXP(SKILLS.RANGED, getRunningTime()));
+        result.put("magicXP", SkillsHelper.getReceivedXP(SKILLS.MAGIC, getRunningTime()));
         result.put("druidsKilled", Antiban.getResourcesWon());
         result.put("profit", PaintHelper.profit);
 

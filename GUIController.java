@@ -13,6 +13,7 @@ import scripts.lanapi.game.combat.Combat;
 import scripts.lanapi.game.persistance.Vars;
 import scripts.lanapi.network.Internet;
 import scripts.lanapi.network.ItemPrice;
+import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -237,7 +238,12 @@ public class GUIController extends AbstractGUIController {
 //            Tooltip tooltip = new Tooltip(String.format("Value: %s.", formattedPrice));
 
             // price tooltip
-            Tooltip tooltip = new Tooltip(String.format("Value: %sgp.", ItemPrice.get(set.getKey().getID())));
+            Tooltip tooltip = null;
+            try {
+                tooltip = new Tooltip(String.format("Value: %sgp.", ItemPrice.get(set.getKey().getID())));
+            } catch (ItemPriceNotFoundException e) {
+                tooltip = new Tooltip("Value unknown.");
+            }
             checkBox.setTooltip(tooltip);
         }
 

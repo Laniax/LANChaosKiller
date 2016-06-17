@@ -20,6 +20,7 @@ import scripts.lanapi.game.helpers.ItemsHelper;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
 import scripts.lanapi.network.ItemPrice;
+import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,11 +90,15 @@ public class KillStrategy implements IStrategy {
 
             if (lootAbove) {
 
-                int lootPrice = ItemPrice.get(item.getID());
+                try {
+                    int lootPrice = ItemPrice.get(item.getID());
 
-                if (lootPrice >= lootAboveAmount) {
-                    lootList.add(item);
-                    log.info("Looting item id '%d' because it is worth %dgp (threshold: %d).", item.getID(), lootPrice, lootAboveAmount);
+                    if (lootPrice >= lootAboveAmount) {
+                        lootList.add(item);
+                        log.info("Looting item id '%d' because it is worth %dgp (threshold: %d).", item.getID(), lootPrice, lootAboveAmount);
+                    }
+                } catch (ItemPriceNotFoundException e) {
+                    log.error("Could not find price for item id %d. We can not add it to the loot list based on value.", e.getItemId());
                 }
             }
         }
@@ -125,8 +130,12 @@ public class KillStrategy implements IStrategy {
             if (itemName != null && itemName.toLowerCase().equals(Combat.getFoodName().toLowerCase()))
                 continue;
 
-            if (lootAbove && ItemPrice.get(item.getID()) >= lootAboveAmount)
-                continue;
+            try {
+                if (lootAbove && ItemPrice.get(item.getID()) >= lootAboveAmount)
+                    continue;
+            } catch (ItemPriceNotFoundException e) {
+                log.error("Could not find price for item id %d. We can not add it to the drop list based on value.", e.getItemId());
+            }
 
             dropList.add(item);
         }
