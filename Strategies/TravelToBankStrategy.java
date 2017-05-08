@@ -5,14 +5,15 @@ import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.Player;
-import org.tribot.api2007.Walking;
+import org.tribot.api2007.WebWalking;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Helpers.ObjectsHelper;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Persistance.Variables;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.combat.Combat;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.helpers.ObjectsHelper;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
 
 /**
  * @author Laniax
@@ -24,15 +25,16 @@ public class TravelToBankStrategy implements IStrategy {
     @Override
     public boolean isValid() {
 
-        boolean needBankingForFood = (Inventory.isFull() || (Variables.getInstance().<Integer>get("foodCount") > 0)) && Inventory.find(Variables.getInstance().<String>get("foodName")).length == 0;
+        final int foodCount = Vars.get().get("foodCount");
+        final String foodName = Combat.getFoodName();
+
+        boolean needBankingForFood = Inventory.isFull() || (foodCount > 0 && Inventory.getCount(foodName) == 0);
 
         return needBankingForFood && Player.getPosition().distanceTo(Positions.POS_BANK_CENTER) > 2;
     }
 
     @Override
     public void run() {
-
-        boolean useLogCrossing = Variables.getInstance().get("useLogCrossing", false);
 
         // We are in the tower, first open the door.
         if (Positions.AREA_INSIDE_TOWER.contains(Player.getPosition())) {
@@ -41,53 +43,47 @@ public class TravelToBankStrategy implements IStrategy {
 
             ObjectsHelper.interact("Open");
 
-            // if it doesn't break early, we recurse call it again.
-            if (!Timing.waitCondition(new Condition() {
+            Timing.waitCondition(new Condition() {
                 public boolean active() {
                     General.sleep(50);
                     return !Positions.AREA_INSIDE_TOWER.contains(Player.getPosition());
                 }
-            }, General.random(2000, 3000)))
-                return;
+            }, General.random(2000, 3000));
         }
 
-        // if we are left from river and should use the log crossing
+        boolean useLogCrossing = Vars.get().get("useLogCrossing", false);
+
         if (useLogCrossing && Player.getPosition().getX() < Positions.COORD_X_RIVER) {
 
-            PaintHelper.statusText = "Going to log";
+                PaintHelper.statusText = "Going to log";
 
-            Walking.walkPath(Positions.PATH_TOWER_TO_LOG, new Condition() {
-                public boolean active() {
-                    General.sleep(50);
-                    return Player.getPosition().distanceTo(Positions.PATH_TOWER_TO_LOG[Positions.PATH_TOWER_TO_LOG.length - 1]) < 3;
-                }
-            }, General.random(18000, 20000));
+                if (Movement.walkTo(Positions.POS_INTERACT_LOG_TOWER)) {
 
-            PaintHelper.statusText = "Crossing log";
+                    PaintHelper.statusText = "Interacting with log";
 
-            for (int i = 0; i < 10; i++) {
+                    if (ObjectsHelper.interact(Positions.POS_OBJ_LOG_TOWER, "Walk-across", "Walk-across")) {
 
-                ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_TOWER);
+                        PaintHelper.statusText = "Waiting until crossover";
 
-                if (Timing.waitCondition(new Condition() {
-                    public boolean active() {
-                        General.sleep(50);
-                        return Player.getPosition().getX() > Positions.COORD_X_RIVER;
+                        Timing.waitCondition(new Condition() {
+                            @Override
+                            public boolean active() {
+                                General.sleep(50);
+                                return Player.getPosition() == Positions.POS_INTERACT_LOG_BANK || Player.getPosition().getX() > Positions.COORD_X_RIVER;
+                            }
+                        }, General.random(6000, 7000));
+
+                        PaintHelper.statusText = "Walking to the bank";
+
+                        // we want to walk either way, if the above condition failed or not
+                           Movement.walkTo(Positions.AREA_BANK.getRandomTile());
+
+                        }
                     }
-                }, General.random(2000, 3000)))
-                    break;
-            }
-
+        } else {
+            PaintHelper.statusText = "Walking to the bank";
+            Movement.walkTo(Positions.AREA_BANK.getRandomTile());
         }
-
-        PaintHelper.statusText = "Going to bank";
-
-        if (useLogCrossing) {
-            if (!Walking.walkPath(Positions.PATH_LOG_TO_BANK)) {
-                Movement.walkTo(Positions.POS_BANK_CENTER);
-            }
-        } else
-            Movement.walkTo(Positions.POS_BANK_CENTER);
     }
 
     @Override

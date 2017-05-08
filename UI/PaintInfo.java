@@ -1,78 +1,119 @@
 package scripts.LANChaosKiller.UI;
 
-import org.tribot.api.Timing;
 import org.tribot.api2007.Skills;
-import scripts.LanAPI.Game.Helpers.SkillsHelper;
-import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Painting.PaintString;
+import scripts.lanapi.core.types.StringUtils;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.helpers.SkillsHelper;
+import scripts.lanapi.game.painting.AbstractPaintInfo;
+import scripts.lanapi.game.painting.PaintBuilder;
+import scripts.lanapi.game.painting.PaintHelper;
 
 import java.awt.*;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Laniax
  */
 public class PaintInfo extends AbstractPaintInfo {
 
-    final Image _bg = PaintHelper.getImage("https://dl.dropboxusercontent.com/u/21676524/RS/ChaosKiller/Script/scriptPaint.png");
-    final Image _toggle = PaintHelper.getImage("https://dl.dropboxusercontent.com/u/21676524/RS/ChaosKiller/Script/scriptPaintToggle.png");
-
-    final Font fontMed = PaintHelper.getFont("https://dl.dropboxusercontent.com/u/21676524/RS/ChaosKiller/Script/SF%20Electrotome.ttf", 22f);
-    final Font fontSmall = fontMed.deriveFont(18f);
-    final Font fontLarge = fontMed.deriveFont(33f);
-
-    final Point runtimePos = new Point(115, 406);
-    final Point statusPos = new Point(141, 372);
-
-    private final int[][] skillXPLocations = new int[][]{
-            {60, 433},
-            {60, 458},
-            {60, 483},
-
-            {240, 433},
-            {240, 458},
-            {240, 483},
-    };
-
+    /**
+     * Return the primary color of your script. This will determine cursor color etc.
+     *
+     * @return
+     */
     @Override
-    public Image getBackground() {
-        return _bg;
+    public Color getPrimaryColor() {
+        return new Color(255, 158, 0);
     }
 
+    /**
+     * Return the secondary color of your script. This will determine values inside texts etc.
+     *
+     * @return
+     */
     @Override
-    public Image getButtonPaintToggle() {
-        return _toggle;
+    public Color getSecondaryColor() {
+        return getPrimaryColor();
     }
 
+    /**
+     * Return if the script is a premium script or not, determines the FREE or PREMIUM tag in the paint.
+     *
+     * @return
+     */
     @Override
-    public List<PaintString> getText(long runTime) {
+    public boolean isScriptPremium() {
+        return false;
+    }
 
-        List<PaintString> result = new ArrayList<>();
+    /**
+     * Returns how the title should look in the paint.
+     * @return
+     */
+    @Override
+    public PaintBuilder paintTitle() {
+        return new PaintBuilder()
+                .add()
+                .setColor(Color.white)
+                .setText("LAN ")
+                .setColor(this.primary)
+                .setText("Chaos Killer")
+                .end();
+    }
 
-        result.add(new PaintString(PaintHelper.statusText, statusPos, fontLarge, Color.WHITE, true));
+    /**
+     * Return all the custom lines you want to display in the paint.
+     * Most likely the XP, profit, etc.
+     * @param runTime
+     * @return
+     */
+    @Override
+    public PaintBuilder getText(long runTime) {
 
-        result.add(new PaintString(Timing.msToString(runTime), runtimePos, fontMed, Color.WHITE, true));
+        double hours = runTime / 3600000.0;
 
-        int i = 0;
-        for (Map.Entry<Skills.SKILLS, Integer> s : SkillsHelper.getStartSkills().entrySet()) {
+        Skills.SKILLS skill = SkillsHelper.getSkillWithMostIncrease();
 
-            int xpGained = SkillsHelper.getReceivedXP(s.getKey());
+        if (skill == null)
+            skill = Skills.SKILLS.STRENGTH;
 
-            double hours = runTime / 3600000.0;
+        int xpGained = SkillsHelper.getReceivedXP(skill);
 
-            String xpHour = NumberFormat.getNumberInstance().format(Math.round(xpGained / hours));
-
-            String str = String.format("%d (%s / hour)", xpGained, xpHour);
-            Point pos = new Point(skillXPLocations[i][0], skillXPLocations[i][1]);
-
-            result.add(new PaintString(str, pos, fontSmall, Color.WHITE, true));
-            i++;
-        }
-
-        return result;
+        return new PaintBuilder()
+                .add()
+                    .setColor(Color.white)
+                    .setText("Profit ")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber(PaintHelper.profit, true))
+                    .setColor(Color.white)
+                    .setText(" (")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber((int) Math.round(PaintHelper.profit / hours), true))
+                    .setColor(Color.white)
+                    .setText("/h)")
+                .end()
+                .add()
+                    .setColor(Color.white)
+                    .setText("Killcount ")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber(Antiban.getResourcesWon()))
+                    .setColor(Color.white)
+                    .setText(" (")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber((int) Math.round(Antiban.getResourcesWon() / hours)))
+                    .setColor(Color.white)
+                    .setText("/h)")
+                .end()
+                .add()
+                    .setColor(Color.white)
+                    .setText(StringUtils.capitalize(skill.name()) + " ")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber(xpGained))
+                    .setColor(Color.white)
+                    .setText(" (")
+                    .setColor(this.secondary)
+                    .setText(PaintHelper.formatNumber((int) (xpGained / hours)))
+                    .setColor(Color.white)
+                    .setText("/h)")
+                .end();
     }
 }

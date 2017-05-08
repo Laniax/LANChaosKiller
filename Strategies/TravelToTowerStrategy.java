@@ -4,14 +4,13 @@ import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Player;
-import org.tribot.api2007.Walking;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Helpers.ObjectsHelper;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Persistance.Variables;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.helpers.ObjectsHelper;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
 
 /**
  * @author Laniax
@@ -31,41 +30,35 @@ public class TravelToTowerStrategy implements IStrategy {
     @Override
     public void run() {
 
-        boolean useLogCrossing = Variables.getInstance().get("useLogCrossing", false);
+        boolean useLogCrossing = Vars.get().get("useLogCrossing", false);
 
         if (useLogCrossing && Player.getPosition().getX() > Positions.COORD_X_RIVER) {
 
-            PaintHelper.statusText = "Going to log";
+                if (Movement.walkTo(Positions.POS_INTERACT_LOG_BANK)) {
 
-            Walking.walkPath(Positions.PATH_BANK_TO_LOG, new Condition() {
-                public boolean active() {
-                    General.sleep(50);
-                    return Player.getPosition().distanceTo(Positions.PATH_BANK_TO_LOG[Positions.PATH_BANK_TO_LOG.length - 1]) < 3;
-                }
-            }, General.random(18000, 20000));
+                    if (ObjectsHelper.interact(Positions.POS_OBJ_LOG_BANK, "Walk-across", "Walk-across")) {
 
-            PaintHelper.statusText = "Crossing log";
+                        PaintHelper.statusText = "Waiting until crossover";
 
-            for (int i = 0; i < 10; i++) {
+                        Timing.waitCondition(new Condition() {
+                            @Override
+                            public boolean active() {
+                                General.sleep(50);
+                                return Player.getPosition() == Positions.POS_INTERACT_LOG_TOWER || Player.getPosition().getX() < Positions.COORD_X_RIVER;
+                            }
+                        }, General.random(4000, 5000));
 
-                ObjectsHelper.interact("Walk-across", Positions.POS_OBJ_LOG_BANK);
+                        PaintHelper.statusText = "Walking to the tower";
 
-                if (Timing.waitCondition(new Condition() {
-                    public boolean active() {
-                        General.sleep(50);
-                        return Player.getPosition().getX() < Positions.COORD_X_RIVER;
+                        // we want to walk either way, if the above condition failed or not
+                        Movement.walkTo(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
+
                     }
-                }, General.random(2000, 3000)))
-                    break;
-            }
-        }
-
-        PaintHelper.statusText = "Going to tower";
-
-        if (useLogCrossing)
-            Walking.walkPath(Positions.PATH_LOG_TO_TOWER);
-        else
+                }
+        } else {
+            PaintHelper.statusText = "Walking to the tower";
             Movement.walkTo(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
+        }
     }
 
     @Override

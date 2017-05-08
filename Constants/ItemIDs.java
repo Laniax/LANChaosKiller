@@ -23,18 +23,11 @@ public enum ItemIDs {
     // Misc
     LAW_RUNE(563),
     NATURE_RUNE(561),
-    RUNE_JAVELIN(830),
-    MITHRIL_BOLTS(9142),
-
-    // Rare drop list
-    SHIELD_LEFT_HALF(2366),
-    HALF_KEY_TOOTH(985),
-    HALF_KEY_LOOP(987),
-    DRAGONSTONE(1615),
-    DRAGON_SPEAR(1249),
-    ALL_RARES(-1);
+    ENSOULED_HEAD(13471),
+    MITHRIL_BOLTS(9142);
 
     private final int id;
+    private boolean loot = false;
 
     ItemIDs(int id) {
         this.id = id;
@@ -42,6 +35,14 @@ public enum ItemIDs {
 
     public int getID() {
         return id;
+    }
+
+    public boolean shouldLoot() {
+        return this.loot;
+    }
+
+    public void shouldLoot(boolean value) {
+        this.loot = value;
     }
 
     private static Map<Integer, ItemIDs> map = new HashMap<Integer, ItemIDs>();
