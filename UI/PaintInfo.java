@@ -46,6 +46,16 @@ public class PaintInfo extends AbstractPaintInfo {
     }
 
     /**
+     * Returns if the bugreport button should be shown.
+     *
+     * @return
+     */
+    @Override
+    public boolean showReportBugButton() {
+        return false;
+    }
+
+    /**
      * Returns how the title should look in the paint.
      * @return
      */

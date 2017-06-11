@@ -4,20 +4,19 @@ import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Player;
+import org.tribot.api2007.Skills;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.lanapi.core.logging.LogProxy;
+import scripts.Traverse;
 import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.helpers.ObjectsHelper;
-import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
-import scripts.lanapi.game.persistance.Vars;
 
 /**
  * @author Laniax
  */
 public class TravelToTowerStrategy implements IStrategy {
 
-    LogProxy log = new LogProxy("TravelToTowerStrategy");
+//    LogProxy log = new LogProxy("TravelToTowerStrategy");
 
     @Override
     public boolean isValid() {
@@ -30,15 +29,15 @@ public class TravelToTowerStrategy implements IStrategy {
     @Override
     public void run() {
 
-        boolean useLogCrossing = Vars.get().get("useLogCrossing", false);
+        boolean useLogCrossing = Skills.getActualLevel(Skills.SKILLS.AGILITY) >= 33;
 
         if (useLogCrossing && Player.getPosition().getX() > Positions.COORD_X_RIVER) {
 
-                if (Movement.walkTo(Positions.POS_INTERACT_LOG_BANK)) {
+                if (Traverse.Instance.getWalker().to(Positions.POS_INTERACT_LOG_BANK)) {
 
                     if (ObjectsHelper.interact(Positions.POS_OBJ_LOG_BANK, "Walk-across", "Walk-across")) {
 
-                        PaintHelper.statusText = "Waiting until crossover";
+                        PaintHelper.status_text = "Waiting until crossover";
 
                         Timing.waitCondition(new Condition() {
                             @Override
@@ -48,16 +47,16 @@ public class TravelToTowerStrategy implements IStrategy {
                             }
                         }, General.random(4000, 5000));
 
-                        PaintHelper.statusText = "Walking to the tower";
+                        PaintHelper.status_text = "Walking to the tower";
 
                         // we want to walk either way, if the above condition failed or not
-                        Movement.walkTo(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
+                        Traverse.Instance.getWalker().to(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
 
                     }
                 }
         } else {
-            PaintHelper.statusText = "Walking to the tower";
-            Movement.walkTo(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
+            PaintHelper.status_text = "Walking to the tower";
+            Traverse.Instance.getWalker().to(Positions.POS_OUTSIDE_DRUID_TOWER_DOOR);
         }
     }
 

@@ -6,21 +6,21 @@ import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItem;
-import org.tribot.api2007.types.RSItemDefinition;
 import org.tribot.api2007.types.RSNPC;
 import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.lanapi.game.filters.Filters;
-import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.combat.Combat;
-import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.filters.Filters;
 import scripts.lanapi.game.grounditems.GroundItems;
 import scripts.lanapi.game.helpers.ItemsHelper;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
 import scripts.lanapi.network.ItemPrice;
 import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
+import scripts.lanframework.logging.Log;
+import scripts.lanframework.logging.annotations.LogName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +28,8 @@ import java.util.List;
 /**
  * @author Laniax
  */
+@LogName("Combat")
 public class KillStrategy implements IStrategy {
-
-    LogProxy log = new LogProxy("KillStrategy");
 
     @Override
     public boolean isValid() {
@@ -44,7 +43,7 @@ public class KillStrategy implements IStrategy {
 
             doLooting();
 
-            PaintHelper.statusText = "Searching for druids";
+            PaintHelper.status_text = "Searching for druids";
 
             final RSNPC npcs[] = NPCs.findNearest("Chaos druid");
 
@@ -77,7 +76,7 @@ public class KillStrategy implements IStrategy {
 
         List<RSGroundItem> lootList = new ArrayList<>();
 
-        PaintHelper.statusText = "Searching for loot";
+        PaintHelper.status_text = "Searching for loot";
 
         for (RSGroundItem item : GroundItems.getAll(Filters.GroundItems.inArea(Positions.AREA_INSIDE_TOWER))) {
 
@@ -95,16 +94,16 @@ public class KillStrategy implements IStrategy {
 
                     if (lootPrice >= lootAboveAmount) {
                         lootList.add(item);
-                        log.info("Looting item id '%d' because it is worth %dgp (threshold: %d).", item.getID(), lootPrice, lootAboveAmount);
+                        Log.Instance.info("Looting item id '%d' because it is worth %dgp (threshold: %d).", item.getID(), lootPrice, lootAboveAmount);
                     }
                 } catch (ItemPriceNotFoundException e) {
-                    log.error("Could not find price for item id %d. We can not add it to the loot list based on value.", e.getItemId());
+                    Log.Instance.error("Could not find price for item id %d. We can not add it to the loot list based on value.", e.getItemId());
                 }
             }
         }
 
         if (lootList.size() > 0) {
-            PaintHelper.statusText = "Looting items";
+            PaintHelper.status_text = "Looting items";
             GroundItems.loot(lootList.toArray(new RSGroundItem[lootList.size()]), 0);
         }
 
@@ -134,14 +133,14 @@ public class KillStrategy implements IStrategy {
                 if (lootAbove && ItemPrice.get(item.getID()) >= lootAboveAmount)
                     continue;
             } catch (ItemPriceNotFoundException e) {
-                log.error("Could not find price for item id %d. We can not add it to the drop list based on value.", e.getItemId());
+                Log.Instance.error("Could not find price for item id %d. We can not add it to the drop list based on value.", e.getItemId());
             }
 
             dropList.add(item);
         }
 
         if (dropList.size() > 0) {
-            PaintHelper.statusText = "Dropping unwanted items";
+            PaintHelper.status_text = "Dropping unwanted items";
             Inventory.drop(dropList.toArray(new RSItem[dropList.size()]));
         }
     }

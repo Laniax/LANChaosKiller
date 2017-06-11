@@ -5,9 +5,8 @@ import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Player;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.lanapi.core.logging.LogProxy;
-import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.helpers.ObjectsHelper;
 import scripts.lanapi.game.painting.PaintHelper;
 
@@ -16,7 +15,7 @@ import scripts.lanapi.game.painting.PaintHelper;
  */
 public class PicklockDoorStrategy implements IStrategy {
 
-    LogProxy log = new LogProxy("PicklockDoorStrategy");
+//    LogProxy log = new LogProxy("PicklockDoorStrategy");
 
     @Override
     public boolean isValid() {
@@ -26,7 +25,7 @@ public class PicklockDoorStrategy implements IStrategy {
 
     @Override
     public void run() {
-        PaintHelper.statusText = "Picklocking door";
+        PaintHelper.status_text = "Picklocking door";
 
         if (ObjectsHelper.interact("Pick-lock")) {
 

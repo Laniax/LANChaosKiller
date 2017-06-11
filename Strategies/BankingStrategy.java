@@ -35,7 +35,7 @@ public class BankingStrategy implements IStrategy {
     @Override
     public void run() {
 
-        PaintHelper.statusText = "Banking";
+        PaintHelper.status_text = "Banking";
 
         final int foodCount = Vars.get().get("foodCount");
         final String foodName = Combat.getFoodName();
@@ -43,7 +43,7 @@ public class BankingStrategy implements IStrategy {
         final boolean bankingNotification = Vars.get().get("bankingNotification", false);
 
         if (bankingNotification)
-            Notifications.send("[LAN] ChaosKiller", "Banking..");
+            Notifications.send("LAN ChaosKiller", "Banking..");
 
         if (Banking.openBank()) {
 

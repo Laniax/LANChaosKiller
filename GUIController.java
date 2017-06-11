@@ -4,6 +4,7 @@ import com.allatori.annotations.DoNotRename;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.util.StringConverter;
 import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.lanapi.core.gui.AbstractGUIController;
 import scripts.lanapi.core.gui.GUI;
@@ -253,8 +254,10 @@ public class GUIController extends AbstractGUIController {
             refreshArguments();
         });
 
+        applySpinnerFocusFix(foodCount, lootAboveAmount);
+
         // Thread link
-        threadLink.setOnMouseClicked(event -> Internet.openWebsite("https://tribot.org/forums/topic/22590-"));
+        threadLink.setOnMouseClicked(event -> Internet.openWebsite("https://tribot.org/forums/topic/22590-abc2-l10200kh-profit-lan-chaos-druid-killer-flawless-kills-chaos-druids-above-ardougne-for-herbs-freejavafxopen-sourcedyn-sig/"));
 
         // Start button
         startScript.setOnAction((event) -> {
@@ -443,4 +446,29 @@ public class GUIController extends AbstractGUIController {
 //        log.info("getShouldLootAboveAmount is returning "+ lootAboveAmount.getValue());
         return lootAboveAmount.getValue();
     }
+
+
+    private <T> void applySpinnerFocusFix(Spinner<T>... spinners) {
+
+        for (Spinner<T> spinner : spinners) {
+            spinner.focusedProperty().addListener((s, ov, nv) -> {
+                if (nv) return;
+                commitEditorText(spinner);
+            });
+        }
+    }
+
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
+        }
+    }
+
 }

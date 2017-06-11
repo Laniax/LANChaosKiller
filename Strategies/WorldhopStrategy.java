@@ -4,17 +4,17 @@ import org.tribot.api2007.Players;
 import org.tribot.api2007.WorldHopper;
 import org.tribot.api2007.ext.Filters;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.lanapi.core.logging.LogProxy;
-import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.persistance.Vars;
+import scripts.lanframework.logging.Log;
+import scripts.lanframework.logging.annotations.LogName;
 
 /**
  * @author Laniax
  */
+@LogName("Worldhopper")
 public class WorldhopStrategy implements IStrategy {
-
-    LogProxy log = new LogProxy("WorldhopStrategy");
 
     @Override
     public boolean isValid() {
@@ -34,7 +34,7 @@ public class WorldhopStrategy implements IStrategy {
 
         int world = WorldHopper.getRandomWorld(true, false);
 
-        log.info("Attempting to hop to world %d.", world);
+        Log.Instance.warn("Attempting to hop to world %d.", world);
 
         WorldHopper.changeWorld(world);
     }

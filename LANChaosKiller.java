@@ -12,11 +12,10 @@ import scripts.LANChaosKiller.Constants.Positions;
 import scripts.LANChaosKiller.Strategies.*;
 import scripts.LANChaosKiller.UI.PaintInfo;
 import scripts.lanapi.core.gui.GUI;
-import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.core.mathematics.FastMath;
+import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.combat.Combat;
-import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.concurrency.observers.inventory.InventoryObserver;
 import scripts.lanapi.game.helpers.ArgumentsHelper;
@@ -26,11 +25,13 @@ import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.AbstractPaintInfo;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
-import scripts.lanapi.game.script.AbstractScript;
-import scripts.lanapi.network.connectivity.Signature;
+import scripts.lanapi.game.script.LANScript;
 import scripts.lanapi.network.ItemPrice;
 import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
+import scripts.lanframework.logging.Log;
+import scripts.lanframework.logging.annotations.LogName;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,10 +46,9 @@ import java.util.List;
  * @author Laniax
  */
 
-@ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "[LAN] Chaos Killer", description = "Local script")
-public class LANChaosKiller extends AbstractScript implements Painting, EventBlockingOverride, MouseActions, MousePainting, MouseSplinePainting, Ending, Breaking, Arguments, MessageListening07 {
-
-    private LogProxy inventoryLog;
+@LogName("LAN Chaos Killer")
+@ScriptManifest(authors = {"Laniax"}, category = "Combat", name = "LAN Chaos Killer", description = "Local script")
+public class LANChaosKiller extends LANScript implements Painting, EventBlockingOverride, MouseActions, MousePainting, MouseSplinePainting, Ending, Breaking, Arguments, MessageListening07 {
 
     @Override
     public IStrategy[] getStrategies() {
@@ -57,6 +57,9 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
 
     @Override
     public GUI getGUI() {
+
+        GUIController controller = new GUIController();
+
         try {
             return new GUI(new URL("http://laniax.eu/paint/chaoskiller/gui.fxml"));
         } catch (MalformedURLException e) {
@@ -73,15 +76,16 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
     /**
      * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
      */
-    @Override
-    public void onInitialize() {
+    public void onScriptStart() {
+
+        Log.Instance.write(new Color(93,66,137), "Like this free script? Check out my premium thieving script 'LAN Thiever', it is the only script on OSRS capable of pickpocketing, chest stealing, stall thieving and blackjacking! Great for moneymaking!");
 
         SkillsHelper.setStartSkills(new SKILLS[]{SKILLS.ATTACK, SKILLS.STRENGTH, SKILLS.DEFENCE, SKILLS.HITPOINTS, SKILLS.RANGED, SKILLS.MAGIC});
 
         boolean useLogCrossing = Skills.getActualLevel(SKILLS.AGILITY) >= 33;
 
         if (!useLogCrossing)
-            log.info("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
+            Log.Instance.warn("Detected that you are lower then 33 agility. We will walk over the bridge instead of the log.");
 
         Vars.get().addOrUpdate("script", this);
         Vars.get().addOrUpdate("useLogCrossing", useLogCrossing);
@@ -91,17 +95,15 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         Movement.setUseCustomDoors(new RSObject[]{});
         Movement.setExcludeTiles(Positions.AREA_INSIDE_TOWER.getAllTiles());
 
-        log.info("Retrieving loot prices..");
+        Log.Instance.info("Retrieving loot prices..");
         for (ItemIDs item : ItemIDs.values()) {
             try {
                 ItemPrice.get(item.getID()); // this is cached
             } catch (ItemPriceNotFoundException e) {
-                log.error("Error getting price for %s.", item.name());
+                Log.Instance.error("Error getting price for %s.", item.name());
             }
         }
-        log.info("Got all prices!");
-
-        inventoryLog = new LogProxy("Inventory");
+        Log.Instance.info("Got all prices!");
 
         InventoryObserver observer = new InventoryObserver(new Condition() {
             @Override
@@ -126,13 +128,13 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         try {
             itemPrice = ItemPrice.get(item.getID());
         } catch (ItemPriceNotFoundException e) {
-            inventoryLog.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
+            Log.Instance.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
             return;
         }
 
         int totalWorth = itemPrice * count;
 
-        inventoryLog.info("Gained item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
+        Log.Instance.info("Gained item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
         PaintHelper.profit += totalWorth;
     }
 
@@ -144,13 +146,13 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         try {
             itemPrice = ItemPrice.get(item.getID());
         } catch (ItemPriceNotFoundException e) {
-            inventoryLog.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
+            Log.Instance.error("Couldn't find value for item: %s. We are not counting it towards our profit value.", ItemsHelper.getName(item));
             return;
         }
 
         int totalWorth = itemPrice * count;
 
-        inventoryLog.info("Lost item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
+        Log.Instance.info("Lost item: %dx %s. (worth: %s | %s / each)", count, ItemsHelper.getName(item), PaintHelper.formatNumber(totalWorth, true), PaintHelper.formatNumber(itemPrice, true));
         PaintHelper.profit -= totalWorth;
     }
 
@@ -160,14 +162,11 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
         HashMap<String, String> args = ArgumentsHelper.get(hashMap);
 
         if (args.size() == 0) {
-            hasArguments = false;
+            has_arguments = false;
             return;
         }
 
-        if (log == null)
-            log = new LogProxy("Arguments"); // passArguments is called before script#run.
-
-        hasArguments = true;
+        has_arguments = true;
 
         String[] options = {"foodname", "foodcount", "equipbolts", "worldhop", "lootabove", "exclude", "notifications"};
 
@@ -253,7 +252,7 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
                             if (item != null)
                                 excludes.add(item);
                             else
-                                log.error("Error processing loot exclude '%s'.", v);
+                                Log.Instance.error("Error processing loot exclude '%s'.", v);
                         }
                     }
 
@@ -262,13 +261,13 @@ public class LANChaosKiller extends AbstractScript implements Painting, EventBlo
                         item.shouldLoot(!excludes.contains(item));
 
                         if (excludes.contains(item))
-                            log.info("Excluding %s from the loot table.", item.name());
+                            Log.Instance.info("Excluding %s from the loot table.", item.name());
 
                     }
                     continue;
             }
 
-            log.error("Error processing '%s' for option '%s'! There might be unexpected behaviour!", value, option);
+            Log.Instance.error("Error processing '%s' for option '%s'! There might be unexpected behaviour!", value, option);
         }
     }
 

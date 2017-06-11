@@ -5,18 +5,18 @@ import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Player;
 import scripts.LANChaosKiller.Constants.Positions;
-import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.helpers.ObjectsHelper;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanframework.logging.Log;
+import scripts.lanframework.logging.annotations.LogName;
 
 /**
  * @author Laniax
  */
+@LogName("Unstucker")
 public class StuckStrategy implements IStrategy {
-
-    LogProxy log = new LogProxy("StuckStrategy");
 
     @Override
     public boolean isValid() {
@@ -27,11 +27,11 @@ public class StuckStrategy implements IStrategy {
     @Override
     public void run() {
 
-        PaintHelper.statusText = "Unstucking";
+        PaintHelper.status_text = "Unstucking";
         // Check if we might be upstairs
         if (Player.getPosition().getPlane() > 0) {
 
-            log.warn("We are upstairs - unstucking");
+            Log.Instance.error("We are upstairs - unstucking");
 
             ObjectsHelper.interact("Climb-down");
 
@@ -43,7 +43,7 @@ public class StuckStrategy implements IStrategy {
             }, General.random(3000, 4000));
         } else {
             // otherwise we are downstairs
-            log.warn("We are downstairs - unstucking");
+            Log.Instance.error("We are downstairs - unstucking");
 
             if (!Positions.POS_STAIRS_DOWNSTAIRS_TOWER.isOnScreen())
                 Movement.walkTo(Positions.POS_STAIRS_DOWNSTAIRS_TOWER);
